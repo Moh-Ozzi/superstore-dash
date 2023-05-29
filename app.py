@@ -108,6 +108,8 @@ app = dash.Dash(
     external_stylesheets=[dbc.themes.YETI, dbc.icons.BOOTSTRAP]
 )
 
+server = app.server
+
 home_page = dbc.NavLink(html.Div("Home", className="fw-bolder fs-5 text"), href="/", active="exact")
 country_page = dbc.NavLink(html.Div("Countries", className="fw-bolder fs-5 text"), href="/countries", active="exact")
 main_page = dbc.NavLink(html.Div("Summary", className="fw-bolder fs-5 text"), href="/summary", active="exact")
