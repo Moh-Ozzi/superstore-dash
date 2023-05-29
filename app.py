@@ -18,10 +18,12 @@ from email.message import EmailMessage
 ## SERVER CONFIGURATION AND INITIALISATION
 
 server = Flask(__name__)
-server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://superstore_f8dg_user:V5toWHEbcw0eDUMqBaYRTbNVyCqnYi1M@dpg-chq1r6u7avjb90kctekg-a.frankfurt-postgres.render.com/superstore_f8dg'
 server.config.update(SECRET_KEY='5791628bb0b13ce0c676dfde280ba245')
 db = SQLAlchemy(server)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+#'sqlite:///test.db'
 
 ## Creating the USER Model and the Database
 class User(db.Model, UserMixin):
@@ -105,7 +107,6 @@ app = dash.Dash(
     __name__, server=server, use_pages=True, suppress_callback_exceptions=True,
     external_stylesheets=[dbc.themes.YETI, dbc.icons.BOOTSTRAP]
 )
-
 
 home_page = dbc.NavLink(html.Div("Home", className="fw-bolder fs-5 text"), href="/", active="exact")
 country_page = dbc.NavLink(html.Div("Countries", className="fw-bolder fs-5 text"), href="/countries", active="exact")

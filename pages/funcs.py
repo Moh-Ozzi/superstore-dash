@@ -8,7 +8,6 @@ from sqlalchemy import create_engine
 import plotly.express as px
 import pandas as pd
 import socket
-import dash_mantine_components as dmc
 
 # FORMAT THE NUMBERS IN CARDS
 def human_format(num):

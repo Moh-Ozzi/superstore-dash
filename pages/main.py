@@ -64,20 +64,16 @@ choices = html.Div(
             color='blue.9',
             fullWidth=True,
             className='fw-bold me-4 shadow-sm',
-            # style={'color':'blue 9'}
+            # style={'color':'black'}
         ),
     ]
 )
-
-
 
 
 date_range = html.Div(
     [
         dmc.DateRangePicker(
             id="date-range-picker",
-            # label="Date Range",
-            # description="You can also provide a description",
             minDate=date(2020, 8, 5),
             value=[date(2022, 1, 1), date(2022, 12, 31)],
             icon=DashIconify(icon="fontisto:date"),
@@ -86,6 +82,29 @@ date_range = html.Div(
         ),
     ]
 )
+
+# date_range = html.Div(
+#     [
+#         dmc.DateRangePicker(
+#             id="date-range-picker",
+#             minDate=date(2020, 8, 5),
+#             value=[date(2022, 1, 1), date(2022, 12, 31)],
+#             style={"width": "100%"},
+#             class_name='mt-1'
+#         ),
+#         html.Div(
+#             [
+#                 DashIconify(icon="fontisto:date"),
+#             ]
+#         )
+#     ],
+#     style={'display': 'inline-block'}
+# )
+
+
+
+
+
 
 user = 'Sami'
 layout = dbc.Container(
@@ -103,6 +122,9 @@ layout = dbc.Container(
     ],
     fluid=True,
 )
+
+
+
 
 inputs = []
 
