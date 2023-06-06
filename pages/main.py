@@ -9,9 +9,14 @@ from pages.funcs import human_format, create_main_df, create_summary_card, creat
 from datetime import datetime, timedelta, date
 from dash.exceptions import PreventUpdate
 from dash_iconify import DashIconify
+from utils.login_handler import require_login
+import numpy as np
+
 
 
 dash.register_page(__name__, title='summary', path='/summary')
+require_login(__name__)
+
 
 main_df = create_main_df()
 df_2_years = main_df.copy()
@@ -102,11 +107,50 @@ date_range = html.Div(
 # )
 
 
+# regions = np.insert(main_df['region'].unique(), 0, 'All')
+# ship_modes = main_df['ship_mode'].unique()
+#
+#
+# popovers = html.Div(
+#     [
+#         # First example - using dbc.PopoverBody
+#         dbc.Button(
+#             id="popover-target", className="bi bi-funnel"
+#         ),
+#         dbc.Popover(
+#             dbc.PopoverBody([
+#             dbc.Label("Region"),
+#             dmc.MultiSelect(
+#                 placeholder="Select all you like!",
+#                 id="regions",
+#                 clearable=True,
+#                 data=regions,
+#                 value=[regions[0]],
+#                 style={"width": '100%', "marginBottom": 10},
+#         ),
+#             html.Hr(),
+#             dbc.Label("Ship mode"),
+#             dbc.Checklist(
+#                 id="ship_mode",
+#                 options=ship_modes,
+#                 value=ship_modes,
+#                 label_checked_style={"color": "#2471a1"},
+#                 input_checked_style={
+#                     "backgroundColor": "#2471a1",
+#                     "borderColor": "#2471a1",
+#                 },
+#                 className='mb-1'
+#             )
+#                              ],
+# style={'width':'300px','height':'250px'}
+#                             ),
+#             target="popover-target",
+#             trigger="click",
+#         ),
+#         ]
+# )
 
 
-
-
-user = 'Sami'
 layout = dbc.Container(
     [
         dbc.Row([dbc.Col(html.H5('Welcome, Mohamed'), width=3), dbc.Col(date_range, width={'offset': 1}), dbc.Col(choices, width={'offset': 2})]),
@@ -125,7 +169,6 @@ layout = dbc.Container(
 
 
 
-
 inputs = []
 
 
@@ -136,10 +179,10 @@ inputs = []
            Output('sales_line', 'figure'), Output('profit_line', 'figure'), Output('orders_line', 'figure'), Output('customers_line', 'figure'),
 Output('sales_difference', 'children'), Output('profit_difference', 'children'), Output('orders_difference', 'children'), Output('customers_difference', 'children'),
 Output('sales_difference', 'className'), Output('profit_difference', 'className'), Output('orders_difference', 'className'), Output('customers_difference', 'className'),
-],
-          Input('segmented', 'value'), Input('by_category', 'selectedData'), Input('by_state', 'selectedData'), Input('by_sub_category', 'selectedData'),
-           Input('by_segment', 'selectedData'), Input('by_customer', 'selectedData'), Input('by_manufacturer', 'selectedData'))
-def update_graphs(value, selected_category, selected_state, selected_subcategory, selected_segment,selected_customer, selected_manufacturer):
+Output('regions', 'value')],
+           [Input('segmented', 'value'), Input('ship_mode', 'value'), Input('regions', 'value'),  Input('by_category', 'selectedData'), Input('by_state', 'selectedData'), Input('by_sub_category', 'selectedData'),
+           Input('by_segment', 'selectedData'), Input('by_customer', 'selectedData'), Input('by_manufacturer', 'selectedData')])
+def update_graphs(value, ship_mode, regions, selected_category, selected_state, selected_subcategory, selected_segment,selected_customer, selected_manufacturer):
 
     # global sales, profit, customers, orders
     main_copy_df = main_df.copy()
@@ -165,6 +208,26 @@ def update_graphs(value, selected_category, selected_state, selected_subcategory
        segment_selected = selected_segment['points'][0]['x']
        main_copy_df = main_copy_df[main_copy_df['segment'] == segment_selected]
        df_2_years_copy = df_2_years_copy[df_2_years_copy['segment'] == segment_selected]
+
+    if ship_mode:
+        main_copy_df = main_copy_df[main_copy_df['ship_mode'].isin(ship_mode)]
+        df_2_years_copy = df_2_years_copy[df_2_years_copy['ship_mode'].isin(ship_mode)]
+
+    if regions[-1] == 'All':
+        all_regions = ['South', 'West', 'Central', 'East']
+        main_copy_df = main_copy_df[main_copy_df['region'].isin(all_regions)]
+        df_2_years_copy = df_2_years_copy[df_2_years_copy['region'].isin(all_regions)]
+        regions = ['All']
+    elif len(regions) > 1 and 'All' in regions and regions[-1] != 'All':
+        regions.remove('All')
+        main_copy_df = main_copy_df[main_copy_df['region'].isin(regions)]
+        df_2_years_copy = df_2_years_copy[df_2_years_copy['region'].isin(regions)]
+    else:
+        main_copy_df = main_copy_df[main_copy_df['region'].isin(regions)]
+        df_2_years_copy = df_2_years_copy[df_2_years_copy['region'].isin(regions)]
+
+
+
 
     # if selected_manufacturer is not None:
     #    manufacturer_selected = selected_manufacturer['points'][0]['x']
@@ -225,12 +288,15 @@ def update_graphs(value, selected_category, selected_state, selected_subcategory
     # else:
     #     return category_bar_graph, state_map, sub_category_bar_graph, segment_bar_graph, customer_bar_graph, manufacturer_bar_graph, sales, profit, orders, customers, sales_fig, profits_fig, orders_fig, customers_fig
 
+    if ctx.triggered_id != 'regions':
+        regions = dash.no_update
+
     if (ctx.triggered_id == 'by_category' or selected_category is not None) and selected_segment is None:
-        return dash.no_update, state_map, sub_category_bar_graph, segment_bar_graph, customer_bar_graph, manufacturer_bar_graph, sales, profit, orders, customers, sales_fig, profits_fig, orders_fig, customers_fig, sales_difference, profit_difference, orders_difference, customers_difference, sales_difference_style, profit_difference_style, orders_difference_style, customers_difference_style
+        return dash.no_update, state_map, sub_category_bar_graph, segment_bar_graph, customer_bar_graph, manufacturer_bar_graph, sales, profit, orders, customers, sales_fig, profits_fig, orders_fig, customers_fig, sales_difference, profit_difference, orders_difference, customers_difference, sales_difference_style, profit_difference_style, orders_difference_style, customers_difference_style, regions
     elif ctx.triggered_id == 'by_segment' or selected_segment is not None:
-        return category_bar_graph, state_map, sub_category_bar_graph, dash.no_update, customer_bar_graph, manufacturer_bar_graph, sales, profit, orders, customers, sales_fig, profits_fig, orders_fig, customers_fig, sales_difference, profit_difference, orders_difference, customers_difference, sales_difference_style, profit_difference_style, orders_difference_style, customers_difference_style
+        return category_bar_graph, state_map, sub_category_bar_graph, dash.no_update, customer_bar_graph, manufacturer_bar_graph, sales, profit, orders, customers, sales_fig, profits_fig, orders_fig, customers_fig, sales_difference, profit_difference, orders_difference, customers_difference, sales_difference_style, profit_difference_style, orders_difference_style, customers_difference_style, regions
     else:
-        return category_bar_graph, state_map, sub_category_bar_graph, segment_bar_graph, customer_bar_graph, manufacturer_bar_graph, sales, profit, orders, customers, sales_fig, profits_fig, orders_fig, customers_fig, sales_difference, profit_difference, orders_difference, customers_difference, sales_difference_style, profit_difference_style, orders_difference_style, customers_difference_style
+        return category_bar_graph, state_map, sub_category_bar_graph, segment_bar_graph, customer_bar_graph, manufacturer_bar_graph, sales, profit, orders, customers, sales_fig, profits_fig, orders_fig, customers_fig, sales_difference, profit_difference, orders_difference, customers_difference, sales_difference_style, profit_difference_style, orders_difference_style, customers_difference_style, regions
 
     # elif ctx.triggered_id == 'by_state' or selected_state is not None:
     #     return category_bar_graph, dash.no_update, sub_category_bar_graph, segment_bar_graph, customer_bar_graph, manufacturer_bar_graph
@@ -239,6 +305,9 @@ def update_graphs(value, selected_category, selected_state, selected_subcategory
     # elif ctx.triggered_id == 'by_sub_category' or selected_subcategory is not None:
     #     return category_bar_graph, state_map, dash.no_update, segment_bar_graph, customer_bar_graph, manufacturer_bar_graph
 
+    # @callback(Output("regions", "error"), Input("regions", "value"))
+    # def select_value(value):
+    #     return "Select at least 1." if len(value) < 1 else ""
 
 
 

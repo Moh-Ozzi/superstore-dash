@@ -12,7 +12,9 @@ import random
 import string
 import smtplib
 from email.message import EmailMessage
-
+import dash_mantine_components as dmc
+import numpy as np
+from pages.funcs import create_main_df
 
 
 ## SERVER CONFIGURATION AND INITIALISATION
@@ -131,6 +133,64 @@ toggle_button = dbc.Button(
     id="navbar-toggle",
 )
 
+
+
+
+main_df = create_main_df()
+regions = np.insert(main_df['region'].unique(), 0, 'All')
+ship_modes = main_df['ship_mode'].unique().tolist()
+order_list = ['Same Day', 'First Class', 'Second Class', 'Standard Class']
+ship_modes.sort(key=lambda x: order_list.index(x) if x in order_list else len(order_list))
+
+popovers = html.Div(
+    [
+        # First example - using dbc.PopoverBody
+        dbc.Button(
+            id="popover-target", className="bi bi-funnel"
+        ),
+        dbc.Popover(
+            dbc.PopoverBody([
+            dbc.Label("Region"),
+            dmc.MultiSelect(
+                placeholder="Search region",
+                id="regions",
+                clearable=True,
+                data=regions,
+                value=[regions[0]],
+                size='xs',
+                style={"width": '100%'},
+        ),
+            html.Hr(),
+            dbc.Label("Ship mode"),
+            dbc.Checklist(
+                id="ship_mode",
+                options=ship_modes,
+                value=ship_modes,
+                labelStyle={"display": "inline-block", "paddingLeft": "0px", "fontSize": "0.8rem"}, # change the size of the label font
+                inputStyle={"transform": "scale(0.8)"}, # change the size of the box
+                label_checked_style={"color": "#2471a1"},
+                input_checked_style={
+                    "backgroundColor": "#2471a1",
+                    "borderColor": "#2471a1",
+                },
+                className='mb-1'
+            )
+                             ],
+style={'width':'200px','height':'250px'}
+                            ),
+            target="popover-target",
+            trigger="click",
+        ),
+        ],
+    className='d-flex justify-content-center'
+)
+
+
+
+
+
+
+
 sidebar = dbc.Nav(
             [
 toggle_button,
@@ -142,9 +202,14 @@ toggle_button,
                 html.Div(id="login-page"),
                 html.Div(id="summary-page"),
                 html.Div(id="category-analysis"),
-html.Div(id="time-page"),
+                html.Div(id="time-page"),
                 html.Div(id="menu", className="text-danger"),
-
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                html.Br(),
+                html.Hr(),
+                popovers
             ],
             navbar=True,
             vertical=True,
@@ -288,7 +353,7 @@ def sendemail(OTP):
         smtp.send_message(msg)
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server()
 
 
 

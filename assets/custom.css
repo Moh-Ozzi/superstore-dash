@@ -1,0 +1,9 @@
+.custom-modal .modal-backdrop {
+    z-index: -1;
+    background-color: red;
+}
+
+
+.popover {
+    max-width: 500px;
+}
