@@ -1,4 +1,4 @@
-import os
+
 from flask import Flask, request, redirect, session, url_for, flash, render_template
 from flask_login import login_user, LoginManager, UserMixin, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -44,23 +44,22 @@ with server.app_context():
 
 ## Routing For Login and Registartion and Logout
 alert = False
+count_message = 0
 
 @server.route('/register', methods=['POST', 'GET'])
 def register_route():
     global alert
+    global count_message
     if request.form:
         data = request.form
         with server.app_context():
-            if User.query.all() == []:
-                user = User(username=data['username'], password=data['password'], trial=True)
-                db.session.add(user)
-                db.session.commit()
-                alert=True
-        # return 'Successfully registered user: {}'.format(data['username'])
-
-        # print(alert)
+            # if User.query.all() == []:
+            user = User(username=data['username'], password=data['password'], trial=True)
+            db.session.add(user)
+            db.session.commit()
+            alert=True
+            count_message = 0
         return redirect('/login')
-
 
 
 @server.route('/login', methods=['POST'])
@@ -71,8 +70,8 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user is None or user.password != password:
             return """invalid username and/or password <a href='/login'>login here</a>"""
-        if (datetime.utcnow() > user.registration_date + timedelta(minutes=1)) and (user.trial == True) and (user.OTP == None):
-            return redirect('/buying')
+        # if (datetime.utcnow() > user.registration_date + timedelta(minutes=1)) and (user.trial == True) and (user.OTP == None):
+        #     return redirect('/buying')
         login_user(user)
         if 'url' in session:
             if session['url']:
@@ -81,10 +80,12 @@ def login():
                 return redirect(url) ## redirect to target url
         return redirect('/summary') ## redirect to home
 
+
 @server.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for('/'))
+
 
 @server.route("/test")
 def test():
@@ -100,7 +101,6 @@ login_manager.login_view = "login"
 def load_user(username):
     u = User.query.get(username)
     return u
-
 
 load_figure_template("yeti")
 
@@ -128,12 +128,9 @@ className="fw-bolder fs-5 text"
         ),
  active="exact"
 )
-
 toggle_button = dbc.Button(
     id="navbar-toggle",
 )
-
-
 
 
 main_df = create_main_df()
@@ -185,12 +182,6 @@ style={'width':'200px','height':'250px'}
     className='d-flex justify-content-center'
 )
 
-
-
-
-
-
-
 sidebar = dbc.Nav(
             [
 toggle_button,
@@ -209,7 +200,7 @@ toggle_button,
                 html.Br(),
                 html.Br(),
                 html.Hr(),
-                popovers
+                html.Div(id="popovers"),
             ],
             navbar=True,
             vertical=True,
@@ -222,7 +213,6 @@ collapse = dbc.Collapse(sidebar, id="navbar-collapse", is_open=True)
 
 
 app.layout = dbc.Container([
-
     dbc.Row(
         [
             dbc.Col(
@@ -231,19 +221,12 @@ app.layout = dbc.Container([
                     sidebar,
                     dcc.Location(id="url") ## THE PATH ELEMENT
                 ], width=2, style={'height': '100%'}, className='mt-1'),
-
             dbc.Col(
                 dash.page_container, width=10
             )
         ],
             className='my-2', style={'height': '100%'}
     )
-            #
-    # ),
-    #
-    # dbc.Row(
-    #
-    # )
 ], fluid=True, style={'background-color': '#F8F9F9'})
 
 
@@ -256,6 +239,7 @@ app.layout = dbc.Container([
      Output("category-analysis", "children"),
      Output("menu", "children"),
      Output('url', 'pathname'),
+     Output('popovers', 'children'),
      Input("url", "pathname"),
      Input({'index': ALL, 'type':'redirect'}, 'n_intervals'),
     prevent_initial_call=True
@@ -264,41 +248,50 @@ def update_authentication_status(path, n):
     ### logout redirect
     if n:
         if not n[0]:
-            return '', '', '', '', '', '', '', dash.no_update
+            return '', '', '', '', '', '', '', dash.no_update, ''
         else:
-            return '', '', '', '', '', '', '', '/'
+            return '', '', '', '', '', '', '', '/', ''
 
     ### test if user is logged in
     if current_user.is_authenticated:
         if path == '/login':
-
-            return '', '', country_page, main_page, time_page, category_analysis_page, menue, '/'
-        # print(current_user.username)
-        return '', '', country_page, main_page, time_page, category_analysis_page, menue,  dash.no_update
+            return '', '', country_page, main_page, time_page, category_analysis_page, menue, '/', popovers
+        # print("username first : " + current_user.username)
+        return '', '', country_page, main_page, time_page, category_analysis_page, menue,  dash.no_update, popovers
     else:
         ### if page is restricted, redirect to login and save path
         if path in restricted_page:
             session['url'] = path
-            return register_page, login_page, '', '', '', '', '', '/login'
+            return register_page, login_page, '', '', '', '', '', '/login', ''
 
     ### if path not login and logout display login link
     if current_user and path not in ['/register', '/login', '/logout']:
-        return register_page, login_page, '', '', '', '', '', dash.no_update
+        return register_page, login_page, '', '', '', '', '', dash.no_update, ''
     elif path == '/register':
-        return register_page, login_page, '', '', '', '', '', dash.no_update
+        return register_page, login_page, '', '', '', '', '', dash.no_update, ''
 
     ### if path login and logout hide links
     if path in ['/login', '/logout', '/register']:
-        return register_page, login_page, '', '', '', '', '', dash.no_update
+        return register_page, login_page, '', '', '', '', '', dash.no_update, ''
+
+@app.callback(
+    Output("username", "children"),
+    Input('url', 'pathname'))
+def current_username(url):
+    if url == '/summary' and current_user.is_authenticated:
+        current_username = "Welcome, " + current_user.username + '!'
+        return current_username
 
 
 @app.callback(
     Output("the_alert", "children"),
     Input("url", "pathname"))
 def toggle_modal(path):
-    alert_message = dbc.Alert("تم تسجيل المستخدم لفترة تجريبية بنجاح. ستنتهي الفترة بعد 3 دقائق.", color="primary",
+    alert_message = dbc.Alert("User registered successfully", color="primary",
                               dismissable=True, className="text-center fw-bold")
-    if path == '/login' and alert == True:
+    global count_message
+    if path == '/login' and alert == True and count_message == 0:
+        count_message = 1
         return alert_message
     return dash.no_update
 
@@ -325,20 +318,6 @@ def update_user(n, value):
                 alert=False
                 return "تم تفعيل الحساب. يمكنك تسجيل الدخول الان."
 
-# @app.callback(
-#     Output("navbar-collapse", "is_open"),
-#     Output("navbar-toggle", "className"),
-#     [Input("navbar-toggle", "n_clicks")],
-#     [State("navbar-collapse", "is_open")],
-# )
-# def toggle_collapse(n_clicks, is_open):
-#     if n_clicks is None:
-#         return is_open, "bi bi-arrow-left"
-#     if n_clicks and n_clicks % 2 == 0:
-#         return not is_open, "bi bi-arrow-left"
-#     else:
-#         return not is_open, "bi bi-arrow-right"
-
 def sendemail(OTP):
     EMAIL_ADDRESS = 'mohamedelauzei@gmail.com'
     EMAIL_PASSWORD = 'snbvyvvmiqxhvuty'
@@ -354,54 +333,3 @@ def sendemail(OTP):
 
 if __name__ == "__main__":
     app.run_server()
-
-
-
-
-# app.layout = html.Div(
-#     [
-#
-#         dcc.Link("Home", href="/"),
-#         html.Br(),
-#         dcc.Link("Summary", href="/page-1"),
-#         html.Br(),
-#         dcc.Link("Category Analysis", href="/page-2"),
-#         dcc.Location(id="url"),
-#         html.Div(id="user-status-header"),
-#         html.Div(id="user-status-header2"),
-#         html.Hr(),
-#         dash.page_container
-#     ]
-# )
-
-
-
-# def update_authentication_status(path, n):
-#     ### logout redirect
-#     if n:
-#         if not n[0]:
-#             return '', '', dash.no_update
-#         else:
-#             return '', '', '/'
-#
-#     ### test if user is logged in
-#     if current_user.is_authenticated:
-#         if path == '/login':
-#             return '', dcc.Link("logout", href="/logout"), '/'
-#         return '', dcc.Link("logout", href="/logout"), dash.no_update
-#     else:
-#         ### if page is restricted, redirect to login and save path
-#         if path in restricted_page:
-#             session['url'] = path
-#             return dcc.Link("register", href="/register"), dcc.Link("login", href="/login"), '/login'
-#
-#     ### if path not login and logout display login link
-#     if current_user and path not in ['/register', '/login', '/logout']:
-#         return dcc.Link("register", href="/register"), dcc.Link("login", href="/login"), dash.no_update
-#     elif path == '/register':
-#         return '', dcc.Link("login", href="/login"), dash.no_update
-#
-#     ### if path login and logout hide links
-#     if path in ['/login', '/logout', '/register']:
-#         return '', '', dash.no_update
-#

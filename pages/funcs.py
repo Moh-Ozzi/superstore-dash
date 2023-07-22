@@ -3,7 +3,6 @@ import plotly.express as px
 import dash
 from dash import Dash, html, dcc
 import dash_bootstrap_components as dbc
-import pycountry
 from sqlalchemy import create_engine
 import plotly.express as px
 import pandas as pd

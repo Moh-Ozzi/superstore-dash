@@ -10,8 +10,6 @@ from datetime import datetime, timedelta, date
 from dash.exceptions import PreventUpdate
 from dash_iconify import DashIconify
 from utils.login_handler import require_login
-import numpy as np
-
 
 
 dash.register_page(__name__, title='summary', path='/summary')
@@ -27,6 +25,7 @@ monthly_sales = main_df.groupby('order_month', as_index=False)['sales'].sum()
 monthly_profits = main_df.groupby('order_month', as_index=False)['profit'].sum()
 monthly_orders = main_df.groupby('order_month', as_index=False)['orders'].nunique()
 monthly_customers = main_df.groupby('order_month', as_index=False)['customer_id'].nunique()
+
 sales_fig = create_summary_line_graph(monthly_sales, 'sales')  # Making line chart from the above DFs
 profits_fig = create_summary_line_graph(monthly_profits, 'profit')
 orders_fig = create_summary_line_graph(monthly_orders, 'orders')
@@ -88,72 +87,9 @@ date_range = html.Div(
     ]
 )
 
-# date_range = html.Div(
-#     [
-#         dmc.DateRangePicker(
-#             id="date-range-picker",
-#             minDate=date(2020, 8, 5),
-#             value=[date(2022, 1, 1), date(2022, 12, 31)],
-#             style={"width": "100%"},
-#             class_name='mt-1'
-#         ),
-#         html.Div(
-#             [
-#                 DashIconify(icon="fontisto:date"),
-#             ]
-#         )
-#     ],
-#     style={'display': 'inline-block'}
-# )
-
-
-# regions = np.insert(main_df['region'].unique(), 0, 'All')
-# ship_modes = main_df['ship_mode'].unique()
-#
-#
-# popovers = html.Div(
-#     [
-#         # First example - using dbc.PopoverBody
-#         dbc.Button(
-#             id="popover-target", className="bi bi-funnel"
-#         ),
-#         dbc.Popover(
-#             dbc.PopoverBody([
-#             dbc.Label("Region"),
-#             dmc.MultiSelect(
-#                 placeholder="Select all you like!",
-#                 id="regions",
-#                 clearable=True,
-#                 data=regions,
-#                 value=[regions[0]],
-#                 style={"width": '100%', "marginBottom": 10},
-#         ),
-#             html.Hr(),
-#             dbc.Label("Ship mode"),
-#             dbc.Checklist(
-#                 id="ship_mode",
-#                 options=ship_modes,
-#                 value=ship_modes,
-#                 label_checked_style={"color": "#2471a1"},
-#                 input_checked_style={
-#                     "backgroundColor": "#2471a1",
-#                     "borderColor": "#2471a1",
-#                 },
-#                 className='mb-1'
-#             )
-#                              ],
-# style={'width':'300px','height':'250px'}
-#                             ),
-#             target="popover-target",
-#             trigger="click",
-#         ),
-#         ]
-# )
-
-
 layout = dbc.Container(
     [
-        dbc.Row([dbc.Col(html.H5('Welcome, Mohamed'), width=3), dbc.Col(date_range, width={'offset': 1}), dbc.Col(choices, width={'offset': 2})]),
+        dbc.Row([dbc.Col(html.H5(id='username'), width=3), dbc.Col(date_range, width={'offset': 1}), dbc.Col(choices, width={'offset': 2})]),
         dbc.Row([dbc.Col(card_sales), dbc.Col(card_profit), dbc.Col(card_orders), dbc.Col(card_customers)]),
         dbc.Row([dbc.Col(by_state, width=4, style={'height': height}),
                  dbc.Col(by_segment, width=4, style={'height': height}),
@@ -168,15 +104,12 @@ layout = dbc.Container(
 )
 
 
-
 inputs = []
-
-
 @callback([
-    Output('by_category', 'figure'), Output('by_state', 'figure'), Output('by_sub_category', 'figure'),
-           Output('by_segment', 'figure'), Output('by_customer', 'figure'), Output('by_manufacturer', 'figure'),
-           Output('sales_card_output', 'children'), Output('profit_card_output', 'children'), Output('orders_card_output', 'children'), Output('customer_card_output', 'children'),
-           Output('sales_line', 'figure'), Output('profit_line', 'figure'), Output('orders_line', 'figure'), Output('customers_line', 'figure'),
+Output('by_category', 'figure'), Output('by_state', 'figure'), Output('by_sub_category', 'figure'),
+Output('by_segment', 'figure'), Output('by_customer', 'figure'), Output('by_manufacturer', 'figure'),
+Output('sales_card_output', 'children'), Output('profit_card_output', 'children'), Output('orders_card_output', 'children'), Output('customer_card_output', 'children'),
+Output('sales_line', 'figure'), Output('profit_line', 'figure'), Output('orders_line', 'figure'), Output('customers_line', 'figure'),
 Output('sales_difference', 'children'), Output('profit_difference', 'children'), Output('orders_difference', 'children'), Output('customers_difference', 'children'),
 Output('sales_difference', 'className'), Output('profit_difference', 'className'), Output('orders_difference', 'className'), Output('customers_difference', 'className'),
 Output('regions', 'value')],
@@ -198,7 +131,6 @@ def update_graphs(value, ship_mode, regions, selected_category, selected_state, 
        main_copy_df = main_copy_df[main_copy_df['state_code'] == state_selected]
        df_2_years_copy = df_2_years_copy[df_2_years_copy['state_code'] == state_selected]
 
-    print(selected_state)
     if selected_subcategory is not None:
        subcat_selected = selected_subcategory['points'][0]['x']
        main_copy_df = main_copy_df[main_copy_df['sub_category'] == subcat_selected]
@@ -256,10 +188,14 @@ def update_graphs(value, ship_mode, regions, selected_category, selected_state, 
             dic = {'input': ctx.triggered[0]['prop_id'].split('.')[0], 'value':ctx.triggered[0]['value']['points'][0]['y']}
         else:
             dic = {'input': ctx.triggered[0]['prop_id'].split('.')[0], 'value': ctx.triggered[0]['value']}
+    elif ctx.triggered_id == 'segmented':
+        if len(ctx.triggered) > 1:
+            print('All')
+        else:
+            print(ctx.triggered)
 
     inputs.append(dic)
     print(inputs)
-    # print(ctx.triggered)
 
     sales = '$' + human_format(main_copy_df['sales'].sum())
     profit = '$' + human_format(main_copy_df['profit'].sum())
@@ -281,19 +217,12 @@ def update_graphs(value, ship_mode, regions, selected_category, selected_state, 
     orders_difference, orders_difference_style = compute_difference(df_2_years_copy, 'orders', pd.Series.nunique)
     customers_difference, customers_difference_style = compute_difference(df_2_years_copy, 'customer_id', pd.Series.nunique)
 
-    # if (ctx.triggered_id == 'by_category' or selected_category is not None) and selected_segment is None:
-    #     return dash.no_update, state_map, sub_category_bar_graph, segment_bar_graph, customer_bar_graph, manufacturer_bar_graph, sales, profit, orders, customers, sales_fig, profits_fig, orders_fig, customers_fig
-    # elif ctx.triggered_id == 'by_segment' or selected_segment is not None:
-    #     return category_bar_graph, state_map, sub_category_bar_graph, dash.no_update, customer_bar_graph, manufacturer_bar_graph, sales, profit, orders, customers, sales_fig, profits_fig, orders_fig, customers_fig
-    # else:
-    #     return category_bar_graph, state_map, sub_category_bar_graph, segment_bar_graph, customer_bar_graph, manufacturer_bar_graph, sales, profit, orders, customers, sales_fig, profits_fig, orders_fig, customers_fig
-
     if ctx.triggered_id != 'regions':
         regions = dash.no_update
 
-    if (ctx.triggered_id == 'by_category' or selected_category is not None) and selected_segment is None:
+    if ctx.triggered_id == 'by_category':
         return dash.no_update, state_map, sub_category_bar_graph, segment_bar_graph, customer_bar_graph, manufacturer_bar_graph, sales, profit, orders, customers, sales_fig, profits_fig, orders_fig, customers_fig, sales_difference, profit_difference, orders_difference, customers_difference, sales_difference_style, profit_difference_style, orders_difference_style, customers_difference_style, regions
-    elif ctx.triggered_id == 'by_segment' or selected_segment is not None:
+    elif ctx.triggered_id == 'by_segment':
         return category_bar_graph, state_map, sub_category_bar_graph, dash.no_update, customer_bar_graph, manufacturer_bar_graph, sales, profit, orders, customers, sales_fig, profits_fig, orders_fig, customers_fig, sales_difference, profit_difference, orders_difference, customers_difference, sales_difference_style, profit_difference_style, orders_difference_style, customers_difference_style, regions
     else:
         return category_bar_graph, state_map, sub_category_bar_graph, segment_bar_graph, customer_bar_graph, manufacturer_bar_graph, sales, profit, orders, customers, sales_fig, profits_fig, orders_fig, customers_fig, sales_difference, profit_difference, orders_difference, customers_difference, sales_difference_style, profit_difference_style, orders_difference_style, customers_difference_style, regions
@@ -310,19 +239,3 @@ def update_graphs(value, ship_mode, regions, selected_category, selected_state, 
     #     return "Select at least 1." if len(value) < 1 else ""
 
 
-
-# @callback(
-#     Output("selected-date-date-range-picker", "children"),
-#     Input("date-range-picker", "value"),
-# )
-# def update_output(dates):
-#     prefix = "You have selected: "
-#     if dates:
-#         return prefix + "   -   ".join(dates)
-#     else:
-#         raise PreventUpdate
-
-# MAKING GROUPED DATAFRAMES FOR THE FIGURES
-# grouped_dataframe = main_df.groupby(['category', 'sub_category', 'segment', 'customer_id', 'customer_name', 'state', 'state_code',
-#                                     'manufacturer'], as_index=False) \
-#     .agg({'sales': 'sum', 'profit': 'sum', 'orders': 'nunique'})
