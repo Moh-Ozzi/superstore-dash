@@ -81,6 +81,8 @@ date_range = html.Div(
             minDate=date(2020, 8, 5),
             value=[date(2022, 1, 1), date(2022, 12, 31)],
             icon=DashIconify(icon="fontisto:date"),
+            clearable=False,
+            disabled=True,
             style={"width": 300},
             className='mt-1'
         ),
