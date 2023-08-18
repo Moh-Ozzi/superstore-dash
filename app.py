@@ -109,6 +109,7 @@ app = dash.Dash(
     __name__, server=server, use_pages=True, suppress_callback_exceptions=True,
     external_stylesheets=[dbc.themes.YETI, dbc.icons.BOOTSTRAP]
 )
+app.config["suppress_callback_exceptions"] = True
 
 server = app.server
 
@@ -332,4 +333,4 @@ def sendemail(OTP):
         smtp.send_message(msg)
 
 if __name__ == "__main__":
-    app.run_server()
+    app.run_server(debug=True)
