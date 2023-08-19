@@ -160,7 +160,7 @@ def create_map_graph(df, value):
         locations='state_code',
         color=value,
         scope='usa',
-        custom_data=value,
+        # custom_data=value,
         hover_name='state',
         # hover_data={'state': True, 'state_code': False, value:':.0f'},
         color_continuous_scale=px.colors.sequential.Blues,
