@@ -169,7 +169,7 @@ def create_map_graph(df, value):
         labels={value: value},
     ).update_layout(margin=dict(l=0, r=0, t=30, b=0), coloraxis_showscale=True, coloraxis_colorbar_x=0.9,
                     title=dict(font=dict(family='Arial', size=16), x=0.5), hoverlabel=dict(bgcolor="#2471a1"))\
-        .update_traces(marker_line_color='lightgrey', hovertemplate='<b>%{hovertext}</b><br><br>value=%{customdata:,.0f}<extra></extra>')
+        .update_traces(marker_line_color='lightgrey')
 
     return fig
 
