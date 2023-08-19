@@ -5,7 +5,8 @@ import plotly.express as px
 import pandas as pd
 import dash_mantine_components as dmc
 from pages.funcs import human_format, create_main_df, create_summary_card, create_graph_card, create_summary_line_graph,\
-    create_main_graph, create_main_top10_graph, create_map_graph, compute_difference, graph_highlight
+    create_main_graph, create_main_top10_graph, create_map_graph, compute_difference, graph_highlight, filter_regions
+
 from datetime import datetime, timedelta, date
 from dash.exceptions import PreventUpdate
 from dash_iconify import DashIconify
@@ -23,23 +24,23 @@ main_df = main_df[main_df['order_year'] == 2017]
 
 monthly_sales = main_df.groupby('order_month', as_index=False)['sales'].sum()
 monthly_profits = main_df.groupby('order_month', as_index=False)['profit'].sum()
-monthly_orders = main_df.groupby('order_month', as_index=False)['orders'].nunique()
+monthly_orders = main_df.groupby('order_month', as_index=False)['order_id'].nunique()
 monthly_customers = main_df.groupby('order_month', as_index=False)['customer_id'].nunique()
 
 sales_fig = create_summary_line_graph(monthly_sales, 'sales')  # Making line chart from the above DFs
 profits_fig = create_summary_line_graph(monthly_profits, 'profit')
-orders_fig = create_summary_line_graph(monthly_orders, 'orders')
+orders_fig = create_summary_line_graph(monthly_orders, 'order_id')
 customers_fig = create_summary_line_graph(monthly_customers, 'customer_id')
 
 
 sales = '$' + human_format(main_df['sales'].sum())
 profit = '$' + human_format(main_df['profit'].sum())
-orders = human_format(main_df['orders'].nunique())
+orders = human_format(main_df['order_id'].nunique())
 customers = human_format(main_df['customer_id'].nunique())
 
 sales_difference, sales_difference_style = compute_difference(df_2_years, 'sales', sum)
 profit_difference, profit_difference_style = compute_difference(df_2_years, 'profit', sum)
-orders_difference, orders_difference_style = compute_difference(df_2_years, 'orders', pd.Series.nunique)
+orders_difference, orders_difference_style = compute_difference(df_2_years, 'order_id', pd.Series.nunique)
 customers_difference, customers_difference_style = compute_difference(df_2_years, 'customer_id', pd.Series.nunique)
 
 
@@ -64,7 +65,7 @@ choices = html.Div(
             value="sales",
             data=[{"value": "sales", "label": "Sales"},
                   {"value": "profit", "label": "Profit"},
-                  {"value": "orders", "label": "Orders"}],
+                  {"value": "order_id", "label": "Orders"}],
             color='blue.9',
             fullWidth=True,
             className='fw-bold me-4 shadow-sm',
@@ -250,9 +251,20 @@ def update_graphs(value, ship_mode, regions, selected_category, selected_state, 
         manufacturer_df = manufacturer_df[manufacturer_df['ship_mode'].isin(ship_mode)]
         customer_df = customer_df[customer_df['ship_mode'].isin(ship_mode)]
 
-
-
-
+    if regions[-1] == 'All':
+        regions = ['South', 'West', 'Central', 'East']
+        main_copy_df, df_2_years_copy, category_df, segment_df, sub_cat_df, state_df, manufacturer_df, customer_df \
+        = filter_regions(main_copy_df, df_2_years_copy, category_df, segment_df, sub_cat_df, state_df, manufacturer_df, customer_df,regions)
+        regions = ['All']
+    elif len(regions) > 1 and 'All' in regions and regions[-1] != 'All':
+        regions.remove('All')
+        main_copy_df, df_2_years_copy, category_df, segment_df, sub_cat_df, state_df, manufacturer_df, customer_df = filter_regions(
+            main_copy_df, df_2_years_copy, category_df, segment_df, sub_cat_df, state_df, manufacturer_df, customer_df,
+            regions)
+    else:
+        main_copy_df, df_2_years_copy, category_df, segment_df, sub_cat_df, state_df, manufacturer_df, customer_df = filter_regions(
+            main_copy_df, df_2_years_copy, category_df, segment_df, sub_cat_df, state_df, manufacturer_df, customer_df,
+            regions)
 
     category_bar_graph = create_main_graph(category_df, x='category', y=value, title='Category', value=value)
     if selected_category is not None and category_filtered:
@@ -283,69 +295,31 @@ def update_graphs(value, ship_mode, regions, selected_category, selected_state, 
     app_state['state_filtered'] = state_filtered
     app_state['inputs'] = inputs
 
-    # regions_filtered = ['South', 'West', 'Central', 'East']
-    # if regions[-1] == 'All':
-    #     regions = ['All']
-    # elif len(regions) >= 1 and 'All' in regions and regions[-1] != 'All':
-    #     regions.remove('All')
-    #     regions_filtered = regions
-    # main_copy_df = main_copy_df[main_copy_df['region'].isin(regions_filtered)]
-    # df_2_years_copy = df_2_years_copy[df_2_years_copy['region'].isin(regions_filtered)]
 
-
-    if regions[-1] == 'All':
-        all_regions = ['South', 'West', 'Central', 'East']
-        main_copy_df = main_copy_df[main_copy_df['region'].isin(all_regions)]
-        df_2_years_copy = df_2_years_copy[df_2_years_copy['region'].isin(all_regions)]
-        regions = ['All']
-    elif len(regions) > 1 and 'All' in regions and regions[-1] != 'All':
-        regions.remove('All')
-        main_copy_df = main_copy_df[main_copy_df['region'].isin(regions)]
-        df_2_years_copy = df_2_years_copy[df_2_years_copy['region'].isin(regions)]
-    else:
-        main_copy_df = main_copy_df[main_copy_df['region'].isin(regions)]
-        df_2_years_copy = df_2_years_copy[df_2_years_copy['region'].isin(regions)]
-
-
-    # state_map = create_map_graph(main_copy_df, value)
-    # category_bar_graph = create_main_graph(category_df, x='category', y=value, title='Category', value=value)
-    # segment_bar_graph = create_main_graph(segment_df, x='segment', y=value, title='Segment', value=value)
-    # sub_category_bar_graph = create_main_graph(sub_cat_df, x='sub_category', y=value, title='Sub-Category', value=value)
 
     sales = '$' + human_format(main_copy_df['sales'].sum())
     profit = '$' + human_format(main_copy_df['profit'].sum())
-    orders = human_format(main_copy_df['orders'].nunique())
+    orders = human_format(main_copy_df['order_id'].nunique())
     customers = human_format(main_copy_df['customer_id'].nunique())
 
     monthly_sales = main_copy_df.groupby('order_month', as_index=False)['sales'].sum()
     monthly_profits = main_copy_df.groupby('order_month', as_index=False)['profit'].sum()
-    monthly_orders = main_copy_df.groupby('order_month', as_index=False)['orders'].nunique()
+    monthly_orders = main_copy_df.groupby('order_month', as_index=False)['order_id'].nunique()
     monthly_customers = main_copy_df.groupby('order_month', as_index=False)['customer_id'].nunique()
 
     sales_fig = create_summary_line_graph(monthly_sales, 'sales')
     profits_fig = create_summary_line_graph(monthly_profits, 'profit')
-    orders_fig = create_summary_line_graph(monthly_orders, 'orders')
+    orders_fig = create_summary_line_graph(monthly_orders, 'order_id')
     customers_fig = create_summary_line_graph(monthly_customers, 'customer_id')
 
     sales_difference, sales_difference_style = compute_difference(df_2_years_copy, 'sales', sum)
     profit_difference, profit_difference_style = compute_difference(df_2_years_copy, 'profit', sum)
-    orders_difference, orders_difference_style = compute_difference(df_2_years_copy, 'orders', pd.Series.nunique)
+    orders_difference, orders_difference_style = compute_difference(df_2_years_copy, 'order_id', pd.Series.nunique)
     customers_difference, customers_difference_style = compute_difference(df_2_years_copy, 'customer_id', pd.Series.nunique)
 
     if ctx.triggered_id != 'regions':
         regions = dash.no_update
 
     return category_bar_graph, state_map, sub_category_bar_graph, segment_bar_graph, customer_bar_graph, manufacturer_bar_graph, sales, profit, orders, customers, sales_fig, profits_fig, orders_fig, customers_fig, sales_difference, profit_difference, orders_difference, customers_difference, sales_difference_style, profit_difference_style, orders_difference_style, customers_difference_style, regions, None, None, None,None, app_state
-
-    # elif ctx.triggered_id == 'by_state' or selected_state is not None:
-    #     return category_bar_graph, dash.no_update, sub_category_bar_graph, segment_bar_graph, customer_bar_graph, manufacturer_bar_graph
-    # elif ctx.triggered_id == 'by_manufacturer' or selected_manufacturer is not None:
-    #     return category_bar_graph, state_map, sub_category_bar_graph, segment_bar_graph, customer_bar_graph, dash.no_update
-    # elif ctx.triggered_id == 'by_sub_category' or selected_subcategory is not None:
-    #     return category_bar_graph, state_map, dash.no_update, segment_bar_graph, customer_bar_graph, manufacturer_bar_graph
-
-    # @callback(Output("regions", "error"), Input("regions", "value"))
-    # def select_value(value):
-    #     return "Select at least 1." if len(value) < 1 else ""
 
 

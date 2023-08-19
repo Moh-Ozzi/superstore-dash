@@ -127,7 +127,7 @@ def create_summary_line_graph(df, y):
 
 
 def create_main_graph(df, x, y, title, value):
-    if value == 'orders':
+    if value == 'order_id':
         df = df.groupby(x, as_index=False)[y].nunique().sort_values(by=value, ascending=False)
     else:
         df = df.groupby(x, as_index=False)[y].sum().sort_values(by=value, ascending=False)
@@ -139,7 +139,7 @@ def create_main_graph(df, x, y, title, value):
 
 
 def create_main_top10_graph(df, x, y, title, value):
-    if value == 'orders':
+    if value == 'order_id':
         df = df.groupby(y, as_index=False)[value].nunique().nlargest(10, value).sort_values(by=value)
     else:
         df = df.groupby(y, as_index=False)[value].sum().nlargest(10, value).sort_values(by=value)
@@ -150,7 +150,7 @@ def create_main_top10_graph(df, x, y, title, value):
     return fig
 
 def create_map_graph(df, value):
-    if value == 'orders':
+    if value == 'order_id':
         grouped_by_state = df.groupby(['state', 'state_code'], as_index=False)[value].nunique()
     else:
         grouped_by_state = df.groupby(['state', 'state_code'], as_index=False)[value].sum()
@@ -208,3 +208,13 @@ def graph_highlight(graph, selected_mark):
         graph['data'][0]['z'] = [max(graph['data'][0]['z'] / 1.5) if c == selected_mark else 0 for c in graph["data"][0]['locations']]
     return graph
 
+def filter_regions(main_copy_df, df_2_years_copy, category_df, segment_df, sub_cat_df, state_df, manufacturer_df, customer_df, regions):
+    main_copy_df = main_copy_df[main_copy_df['region'].isin(regions)]
+    df_2_years_copy = df_2_years_copy[df_2_years_copy['region'].isin(regions)]
+    category_df = category_df[category_df['region'].isin(regions)]
+    segment_df = segment_df[segment_df['region'].isin(regions)]
+    sub_cat_df = sub_cat_df[sub_cat_df['region'].isin(regions)]
+    state_df = state_df[state_df['region'].isin(regions)]
+    manufacturer_df = manufacturer_df[manufacturer_df['region'].isin(regions)]
+    customer_df = customer_df[customer_df['region'].isin(regions)]
+    return main_copy_df, df_2_years_copy, category_df, segment_df, sub_cat_df, state_df, manufacturer_df, customer_df
