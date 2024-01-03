@@ -20,7 +20,7 @@ from pages.funcs import create_main_df
 ## SERVER CONFIGURATION AND INITIALISATION
 
 server = Flask(__name__)
-server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://superstore_jibm_user:6a4sKfN1RmZwRMr06jCxKABco67BmHhq@dpg-cmajt30l5elc73el1qi0-a.frankfurt-postgres.render.com/superstore_jibm'
 server.config.update(SECRET_KEY='5791628bb0b13ce0c676dfde280ba245')
 db = SQLAlchemy(server)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
