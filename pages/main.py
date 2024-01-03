@@ -110,7 +110,6 @@ layout = dbc.Container(
 )
 
 
-inputs = []
 @callback([
 Output('by_category', 'figure'), Output('by_state', 'figure'), Output('by_sub_category', 'figure'),
 Output('by_segment', 'figure'), Output('by_customer', 'figure'), Output('by_manufacturer', 'figure'),
@@ -128,7 +127,6 @@ Input('by_segment', 'clickData')],
 def update_graphs(value, ship_mode, regions, selected_category, selected_state, selected_subcategory, selected_segment
                   , app_state):
     df_2_years_copy = df_2_years.copy()
-    print(df_2_years_copy.info())
     main_copy_df = main_df.copy()
     category_df = main_df.copy()
     segment_df = main_df.copy()
@@ -185,6 +183,7 @@ def update_graphs(value, ship_mode, regions, selected_category, selected_state, 
             manufacturer_df = manufacturer_df[manufacturer_df['category'] == selected_category]
             customer_df = customer_df[customer_df['category'] == selected_category]
             main_copy_df = main_copy_df[main_copy_df['category'] == selected_category]
+            df_2_years_copy = df_2_years_copy[df_2_years_copy['category'] == selected_category]
             last_category = selected_category
             category_filtered = True
     else:
@@ -202,6 +201,7 @@ def update_graphs(value, ship_mode, regions, selected_category, selected_state, 
             manufacturer_df = manufacturer_df[manufacturer_df['segment'] == selected_segment]
             customer_df = customer_df[customer_df['segment'] == selected_segment]
             main_copy_df = main_copy_df[main_copy_df['segment'] == selected_segment]
+            df_2_years_copy = df_2_years_copy[df_2_years_copy['segment'] == selected_segment]
             last_segment = selected_segment
             segment_filtered = True
     else:
@@ -219,6 +219,7 @@ def update_graphs(value, ship_mode, regions, selected_category, selected_state, 
             manufacturer_df = manufacturer_df[manufacturer_df['sub_category'] == selected_sub_category]
             customer_df = customer_df[customer_df['sub_category'] == selected_sub_category]
             main_copy_df = main_copy_df[main_copy_df['sub_category'] == selected_sub_category]
+            df_2_years_copy = df_2_years_copy[df_2_years_copy['sub_category'] == selected_sub_category]
             last_subcategory = selected_sub_category
             sub_category_filtered = True
     else:
@@ -236,6 +237,7 @@ def update_graphs(value, ship_mode, regions, selected_category, selected_state, 
             manufacturer_df = manufacturer_df[manufacturer_df['state_code'] == selected_state]
             customer_df = customer_df[customer_df['state_code'] == selected_state]
             main_copy_df = main_copy_df[main_copy_df['state_code'] == selected_state]
+            df_2_years_copy = df_2_years_copy[df_2_years_copy['state_code'] == selected_state]
             last_state = selected_state
             state_filtered = True
     else:

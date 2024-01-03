@@ -20,12 +20,14 @@ from pages.funcs import create_main_df
 ## SERVER CONFIGURATION AND INITIALISATION
 
 server = Flask(__name__)
-server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://superstore_f8dg_user:V5toWHEbcw0eDUMqBaYRTbNVyCqnYi1M@dpg-chq1r6u7avjb90kctekg-a.frankfurt-postgres.render.com/superstore_f8dg'
+server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 server.config.update(SECRET_KEY='5791628bb0b13ce0c676dfde280ba245')
 db = SQLAlchemy(server)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-#'sqlite:///test.db'
+# 'postgresql://superstore_f8dg_user:V5toWHEbcw0eDUMqBaYRTbNVyCqnYi1M@dpg-chq1r6u7avjb90kctekg-a.frankfurt-postgres.render.com/superstore_f8dg'
+
+
 
 ## Creating the USER Model and the Database
 class User(db.Model, UserMixin):
@@ -114,8 +116,9 @@ app.config["suppress_callback_exceptions"] = True
 server = app.server
 
 home_page = dbc.NavLink(html.Div("Home", className="fw-bolder fs-5 text"), href="/", active="exact")
-country_page = dbc.NavLink(html.Div("Countries", className="fw-bolder fs-5 text"), href="/countries", active="exact")
+regions_page = dbc.NavLink(html.Div("Regions", className="fw-bolder fs-5 text"), href="/regions", active="exact")
 main_page = dbc.NavLink(html.Div("Summary", className="fw-bolder fs-5 text"), href="/summary", active="exact")
+table_page = dbc.NavLink(html.Div("Table", className="fw-bolder fs-5 text"), href="/table", active="exact")
 time_page = dbc.NavLink(html.Div("Time", className="fw-bolder fs-5 text"), href="/time", active="exact")
 category_analysis_page = dbc.NavLink(html.Div("Category", className="fw-bolder fs-5 text"), href="/categories", active="exact")
 register_page = dbc.NavLink(html.Div("Register", className="fw-bolder fs-5 text"), href="/register", active="exact")
@@ -190,6 +193,7 @@ toggle_button,
                 html.Br(),
                 html.Div(home_page),
                 html.Div(id="main-page"),
+                html.Div(id="table-page"),
                 html.Div(id="register-page"),
                 html.Div(id="login-page"),
                 html.Div(id="summary-page"),
@@ -241,6 +245,7 @@ app.layout = dbc.Container([
      Output("menu", "children"),
      Output('url', 'pathname'),
      Output('popovers', 'children'),
+     Output('table-page', 'children'),
      Input("url", "pathname"),
      Input({'index': ALL, 'type':'redirect'}, 'n_intervals'),
     prevent_initial_call=True
@@ -249,31 +254,31 @@ def update_authentication_status(path, n):
     ### logout redirect
     if n:
         if not n[0]:
-            return '', '', '', '', '', '', '', dash.no_update, ''
+            return '', '', '', '', '', '', '', dash.no_update, '', ''
         else:
-            return '', '', '', '', '', '', '', '/', ''
+            return '', '', '', '', '', '', '', '/', '', ''
 
     ### test if user is logged in
     if current_user.is_authenticated:
         if path == '/login':
-            return '', '', country_page, main_page, time_page, category_analysis_page, menue, '/', popovers
+            return '', '', regions_page, main_page, time_page, category_analysis_page, menue, '/', popovers, table_page
         # print("username first : " + current_user.username)
-        return '', '', country_page, main_page, time_page, category_analysis_page, menue,  dash.no_update, popovers
+        return '', '', regions_page, main_page, time_page, category_analysis_page, menue,  dash.no_update, popovers, table_page
     else:
         ### if page is restricted, redirect to login and save path
         if path in restricted_page:
             session['url'] = path
-            return register_page, login_page, '', '', '', '', '', '/login', ''
+            return register_page, login_page, '', '', '', '', '', '/login', '', ''
 
     ### if path not login and logout display login link
     if current_user and path not in ['/register', '/login', '/logout']:
-        return register_page, login_page, '', '', '', '', '', dash.no_update, ''
+        return register_page, login_page, '', '', '', '', '', dash.no_update, '', ''
     elif path == '/register':
-        return register_page, login_page, '', '', '', '', '', dash.no_update, ''
+        return register_page, login_page, '', '', '', '', '', dash.no_update, '', ''
 
     ### if path login and logout hide links
     if path in ['/login', '/logout', '/register']:
-        return register_page, login_page, '', '', '', '', '', dash.no_update, ''
+        return register_page, login_page, '', '', '', '', '', dash.no_update, '', ''
 
 @app.callback(
     Output("username", "children"),
