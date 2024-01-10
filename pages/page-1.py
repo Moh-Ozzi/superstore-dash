@@ -56,7 +56,7 @@ def update_graph(value):
 
 @callback(Output('line_graph', 'figure'),
 Input('bar_graph', 'selectedData'),
-              Input('date-range-picker', 'value'),
+Input('date-range-picker', 'value'),
    )
 def update_line(selectedData, value):
 

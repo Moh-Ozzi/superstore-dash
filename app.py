@@ -120,7 +120,7 @@ regions_page = dbc.NavLink(html.Div("Regions", className="fw-bolder fs-5 text"),
 main_page = dbc.NavLink(html.Div("Summary", className="fw-bolder fs-5 text"), href="/summary", active="exact")
 table_page = dbc.NavLink(html.Div("Table", className="fw-bolder fs-5 text"), href="/table", active="exact")
 time_page = dbc.NavLink(html.Div("Time", className="fw-bolder fs-5 text"), href="/time", active="exact")
-category_analysis_page = dbc.NavLink(html.Div("Category", className="fw-bolder fs-5 text"), href="/categories", active="exact")
+sales_profit_scatter = dbc.NavLink(html.Div("Scatter", className="fw-bolder fs-5 text"), href="/scatter", active="exact")
 register_page = dbc.NavLink(html.Div("Register", className="fw-bolder fs-5 text"), href="/register", active="exact")
 login_page = dbc.NavLink(html.Div("Login", className="fw-bolder fs-5 text"), href="/login", active="exact")
 logout_page = dbc.NavLink(html.Div("Logout"), href="/logout", active="exact")
@@ -197,7 +197,7 @@ toggle_button,
                 html.Div(id="register-page"),
                 html.Div(id="login-page"),
                 html.Div(id="summary-page"),
-                html.Div(id="category-analysis"),
+                html.Div(id="sales-profit-scatter"),
                 html.Div(id="time-page"),
                 html.Div(id="menu", className="text-danger"),
                 html.Br(),
@@ -241,7 +241,7 @@ app.layout = dbc.Container([
      Output("summary-page", "children"),
      Output("main-page", "children"),
      Output("time-page", "children"),
-     Output("category-analysis", "children"),
+     Output("sales-profit-scatter", "children"),
      Output("menu", "children"),
      Output('url', 'pathname'),
      Output('popovers', 'children'),
@@ -261,9 +261,9 @@ def update_authentication_status(path, n):
     ### test if user is logged in
     if current_user.is_authenticated:
         if path == '/login':
-            return '', '', regions_page, main_page, time_page, category_analysis_page, menue, '/', popovers, table_page
+            return '', '', regions_page, main_page, time_page, sales_profit_scatter, menue, '/', popovers, table_page
         # print("username first : " + current_user.username)
-        return '', '', regions_page, main_page, time_page, category_analysis_page, menue,  dash.no_update, popovers, table_page
+        return '', '', regions_page, main_page, time_page, sales_profit_scatter, menue,  dash.no_update, popovers, table_page
     else:
         ### if page is restricted, redirect to login and save path
         if path in restricted_page:
