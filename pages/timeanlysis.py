@@ -7,25 +7,31 @@ import pandas as pd
 import dash_bootstrap_components as dbc
 from pages.funcs import create_main_df
 from datetime import date, datetime
-
-
+import random
 
 dash.register_page(__name__, title='time', path='/time')
 require_login(__name__)
 
-df1 = create_main_df()
 
+df = create_main_df()
 
+weekday_order = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+               'August', 'September', 'October', 'November', 'December']
 
+df['order_day'] = pd.Categorical(df['order_day'], categories=weekday_order, ordered=True)
+df['order_month'] = pd.Categorical(df['order_month'], categories=month_order, ordered=True)
 
-df = pd.read_excel('pages/ecom_sales.xlsx')
+numbers = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+weights = [1, 1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 4, 4, 2, 2]
+num_rows = df.shape[0]
+random_numbers = random.choices(numbers, weights, k=num_rows)
+df['hour'] = random_numbers
+
 
 # MATRIX GRAPH & DATAFRAME
-df['InvoiceTime'] = pd.to_datetime(df['InvoiceTime'], format='%H:%M:%S')
-df['InvoiceHour'] = df['InvoiceTime'].dt.hour
-df['WeekDay'] = df['InvoiceDate'].dt.day_name()
-count_matrix = pd.crosstab(index=df['InvoiceHour'], columns=df['WeekDay'])
-fig = px.imshow(count_matrix, color_continuous_scale=px.colors.sequential.Blues, text_auto=True, labels=dict(x="WeekDay",
+count_matrix = pd.crosstab(index=df['hour'], columns=df['order_day'])
+fig = px.imshow(count_matrix, color_continuous_scale=px.colors.sequential.Blues, text_auto=True, labels=dict(x="Day",
                                     y="Hour",
                                     color="No of Orders"))
 fig.update(layout_coloraxis_showscale=False).update_layout(hoverlabel=dict(
@@ -33,16 +39,11 @@ fig.update(layout_coloraxis_showscale=False).update_layout(hoverlabel=dict(
     ))
 
 # CATEGORICAL MONTH GRAPH & DATAFRAME
-df['MonthName'] = df['InvoiceDate'].dt.month_name()
-df['MonthName'] = df['MonthName'].astype('category')
-month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
-               'August', 'September', 'October', 'November', 'December']
-df['MonthName'] = pd.Categorical(df['InvoiceDate'].dt.month_name(), categories=month_order, ordered=True)
-monthly_sales = df.groupby('MonthName', as_index=False)['InvoiceNo'].nunique()
-monthly_sales['InvoiceNo'] = monthly_sales['InvoiceNo'] * 4
-monthly_sales.rename(columns = {'InvoiceNo':'Orders'}, inplace = True)
-monthly_sales['Difference'] = monthly_sales['Orders'].pct_change() * 100
-fig2 = px.bar(monthly_sales, x='MonthName', y='Orders')
+
+monthly_sales = df.groupby('order_month', as_index=False)['order_id'].nunique()
+monthly_sales.rename(columns = {'order_id':'no_orders'}, inplace = True)
+monthly_sales['Difference'] = monthly_sales['no_orders'].pct_change() * 100
+fig2 = px.bar(monthly_sales, x='order_month', y='no_orders')
 fig2.update_traces(texttemplate='%{y}', textposition='inside', insidetextanchor='middle')
 for i in range(1, len(monthly_sales)):
     diff = monthly_sales.loc[i, 'Difference']
@@ -51,8 +52,8 @@ for i in range(1, len(monthly_sales)):
     else:
         color = 'red'
     fig2.add_annotation(
-        x=monthly_sales.loc[i, 'MonthName'],
-        y=monthly_sales.loc[i, 'Orders'],
+        x=monthly_sales.loc[i, 'order_month'],
+        y=monthly_sales.loc[i, 'no_orders'],
         text=f'{diff:.1f}%',
         showarrow=False,
         font=dict(color=color),
@@ -67,8 +68,6 @@ fig2.update_layout(
         bgcolor="#2471a1",
     )
 )
-
-
 
 tab1_content = dbc.Card(
     dbc.CardBody(
@@ -96,7 +95,6 @@ tabs = dbc.Tabs(
         dbc.Tab(tab2_content, label="Month"),
     ]
 )
-
 def layout():
     if not current_user.is_authenticated:
         return html.Div(["Please ", dcc.Link("login", href="/login"), " to continue"])
