@@ -25,10 +25,8 @@ server.config.update(SECRET_KEY='5791628bb0b13ce0c676dfde280ba245')
 db = SQLAlchemy(server)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-# 'postgresql://superstore_f8dg_user:V5toWHEbcw0eDUMqBaYRTbNVyCqnYi1M@dpg-chq1r6u7avjb90kctekg-a.frankfurt-postgres.render.com/superstore_f8dg'
 
-
-
+#'sqlite:///test.db'
 ## Creating the USER Model and the Database
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)

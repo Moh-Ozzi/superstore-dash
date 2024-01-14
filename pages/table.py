@@ -11,6 +11,8 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill, Border, Side
 import os
 import shutil
+from io import BytesIO
+
 
 
 
@@ -69,12 +71,13 @@ layout = dbc.Container(
     [
         html.Div(dbc.Button('Export', id='button', className="m-2")),
         table,
-        html.H4(id='text_holder', children='')
+        html.H4(id='text_holder', children=''),
+        dcc.Download(id="download"),
     ]
     )
 
 
-@callback(Output('text_holder', 'children'), Input('button', 'n_clicks'), Input("table", "virtualRowData"))
+@callback(Output("download", "data"), Input('button', 'n_clicks'), Input("table", "virtualRowData"))
 def export_data(clicks, vdata):
     if clicks and vdata:
         dff2 = pd.DataFrame(vdata)
@@ -143,19 +146,28 @@ def export_data(clicks, vdata):
                                                                        showColumnStripes=False)
         sheet.add_table(table)
         # Save the workbook with the total row
-        output_filename = "superstore.xlsx"
-        wb.save(output_filename)
+        # output_filename = "superstore.xlsx"
+        # wb.save(output_filename)
 
-        # Get the user's desktop path
-        user_desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+        output = BytesIO()
+        wb.save(output)
 
-        # Define the destination path on the desktop
-        destination_path = os.path.join(user_desktop, output_filename)
+        # Seek to the beginning of the BytesIO stream
+        output.seek(0)
 
-        # Copy the file to the desktop
-        shutil.copy(output_filename, destination_path)
+        # Return the content for download
+        return dcc.send_bytes(output.read(), filename="data.xlsx")
 
-        print(f"File '{output_filename}' published on your desktop.")
+        # # Get the user's desktop path
+        # user_desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+        #
+        # # Define the destination path on the desktop
+        # destination_path = os.path.join(user_desktop, output_filename)
+        #
+        # # Copy the file to the desktop
+        # shutil.copy(output_filename, destination_path)
+        #
+        # print(f"File '{output_filename}' published on your desktop.")
 
-        return 'Your file has been exported on your desktop'
-    return ''
+    #     return 'Your file has been exported on your desktop'
+    # return ''
