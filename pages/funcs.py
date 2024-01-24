@@ -26,7 +26,7 @@ def create_main_df():
     # query = 'SELECT * FROM orders'
     # main_df = pd.read_sql(query, engine)
 
-    main_df = pd.read_csv('pages/cleaned_superstore.csv', engine='pyarrow', dtype_backend='pyarrow')
+    main_df = pd.read_csv('data/cleaned_superstore.csv', engine='pyarrow', dtype_backend='pyarrow')
     # main_df[['ship_mode', 'segment', 'category', 'sub_category', 'region', 'country', 'state']] = main_df[['ship_mode', 'segment', 'category', 'sub_category', 'region', 'country', 'state']].astype('category')
 
 
@@ -122,36 +122,42 @@ def create_summary_line_graph(df, y):
         autosize=True,
         showlegend=False,
         plot_bgcolor="white",
-    ).update_traces(hovertemplate="<br>%{x}: %{y}</br>", marker=dict(size=4))
+    ).update_traces(hovertemplate="<br>%{x}: %{y:,.0f}</br>", marker=dict(size=4))
     return fig
 
 
-def create_main_graph(df, x, y, title, value):
+def create_main_graph(df, x_axis, y_axis, title, value):
+    value_title = value
     if value == 'order_id':
-        df = df.groupby(x, as_index=False)[y].nunique().sort_values(by=value, ascending=False)
+        df = df.groupby(x_axis, as_index=False)[y_axis].nunique().sort_values(by=value, ascending=False)
+        value_title = 'orders'
     else:
-        df = df.groupby(x, as_index=False)[y].sum().sort_values(by=value, ascending=False)
-    fig = px.bar(df, x=x, y=y, text_auto='0.2s',
-                 title=f'<b>{value.capitalize()}</b> by {title}').update_layout(yaxis_title=None,
+        df = df.groupby(x_axis, as_index=False)[y_axis].sum().sort_values(by=value, ascending=False)
+    fig = px.bar(df, x=x_axis, y=y_axis, text_auto='0.2s',
+                 title=f'<b>{value_title.capitalize()}</b> by {title}').update_layout(yaxis_title=None,
                  xaxis_title=None, margin=dict(l=0, r=0, t=30, b=0), yaxis=dict(showticklabels=False, visible=False),
-                 title=dict(font=dict(family='Arial', size=14), x=0.5))
+                 title=dict(font=dict(family='Arial', size=14), x=0.5)).update_traces(hovertemplate=f'{x_axis}: %{{x}}<br>{value_title}: %{{y:,.0f}}')
     return fig
 
 
-def create_main_top10_graph(df, x, y, title, value):
+def create_main_top10_graph(df, x_axis, y_axis, title, value):
+    value_title = value
     if value == 'order_id':
-        df = df.groupby(y, as_index=False)[value].nunique().nlargest(10, value).sort_values(by=value)
+        df = df.groupby(y_axis, as_index=False)[value].nunique().nlargest(10, value).sort_values(by=value)
+        value_title = 'orders'
     else:
-        df = df.groupby(y, as_index=False)[value].sum().nlargest(10, value).sort_values(by=value)
-    fig = px.histogram(df, x=x, y=y, text_auto='0.2s',
-                      title=f'<b>{value.capitalize()}</b> by {title}').update_layout(yaxis_title=None,
+        df = df.groupby(y_axis, as_index=False)[value].sum().nlargest(10, value).sort_values(by=value)
+    fig = px.histogram(df, x=x_axis, y=y_axis, text_auto='0.2s',
+                       title=f'<b>{value_title.capitalize()}</b> by {title}').update_layout(yaxis_title=None,
                       xaxis_title=None, margin=dict(l=0, r=0, t=30, b=0),
-                      title=dict(font=dict(family='Arial', size=14), x=0.5))
+                      title=dict(font=dict(family='Arial', size=14), x=0.5)).update_traces(hovertemplate=f'{y_axis}: %{{y}}<br>{value_title}: %{{x:,.0f}}')
     return fig
 
 def create_map_graph(df, value):
+    value_title = value
     if value == 'order_id':
         grouped_by_state = df.groupby(['state', 'state_code'], as_index=False)[value].nunique()
+        value_title = 'orders'
     else:
         grouped_by_state = df.groupby(['state', 'state_code'], as_index=False)[value].sum()
     fig = px.choropleth(
@@ -162,14 +168,13 @@ def create_map_graph(df, value):
         scope='usa',
         # custom_data=value,
         hover_name='state',
-        # hover_data={'state': True, 'state_code': False, value:':.0f'},
         color_continuous_scale=px.colors.sequential.Blues,
         range_color=[grouped_by_state[value].min(), grouped_by_state[value].max()],
-        title=f'<b>{value.capitalize()}</b> by State',
-        labels={value: value},
+        title=f'<b>{value_title.capitalize()}</b> by State',
+        # labels={value: value},
     ).update_layout(margin=dict(l=0, r=0, t=30, b=0), coloraxis_showscale=True, coloraxis_colorbar_x=0.9,
-                    title=dict(font=dict(family='Arial', size=16), x=0.5), hoverlabel=dict(bgcolor="#2471a1"))\
-        .update_traces(marker_line_color='lightgrey')
+                    title=dict(font=dict(family='Arial', size=14), x=0.5), hoverlabel=dict(bgcolor="#2471a1"))\
+        .update_traces(marker_line_color='lightgrey', hovertemplate=f'<b>%{{hovertext}}</b><br><br>{value_title}: %{{z:,.0f}}')
 
     return fig
 

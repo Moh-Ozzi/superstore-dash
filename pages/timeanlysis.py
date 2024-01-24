@@ -30,13 +30,17 @@ df['hour'] = random_numbers
 
 
 # MATRIX GRAPH & DATAFRAME
-count_matrix = pd.crosstab(index=df['hour'], columns=df['order_day'])
+count_matrix = pd.crosstab(index=df['hour'], columns=df['order_day'], normalize=True)
+count_matrix = count_matrix.div(count_matrix.sum().sum()).multiply(100).round(2)
 fig = px.imshow(count_matrix, color_continuous_scale=px.colors.sequential.Blues, text_auto=True, labels=dict(x="Day",
                                     y="Hour",
                                     color="No of Orders"))
 fig.update(layout_coloraxis_showscale=False).update_layout(hoverlabel=dict(
         bgcolor="#2471a1",
     ))
+
+fig.layout.height = 600
+fig.layout.width = 1200
 
 # CATEGORICAL MONTH GRAPH & DATAFRAME
 

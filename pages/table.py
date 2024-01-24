@@ -69,8 +69,12 @@ style={"height": 600, "width": '100%'}
 # htc_revenue = df['htc_revenue'].sum() / 1000
 layout = dbc.Container(
     [
-        html.Div(dbc.Button('Export', id='button', className="m-2")),
         table,
+        dbc.Button(id='button',
+            children=[html.I(className="bi bi-cloud-download mr-2"), " Download"],
+            # color="info",
+            className="m-1"
+        ),
         html.H4(id='text_holder', children=''),
         dcc.Download(id="download"),
     ]

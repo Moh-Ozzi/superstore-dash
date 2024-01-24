@@ -21,7 +21,6 @@ main_df = main_df[main_df['order_date'].dt.year == 2017]
 
 # Unique subcategories
 unique_subcats = main_df['sub_category'].unique()
-print(unique_subcats)
 
 # Symbol list (extend as needed)
 symbols = ['circle', 'square', 'diamond', 'cross', 'x', 'triangle-up', 'triangle-down', 'triangle-left', 'triangle-right', 'hexagram', 'hexagon']

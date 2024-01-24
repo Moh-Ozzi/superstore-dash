@@ -268,15 +268,15 @@ def update_graphs(value, ship_mode, regions, selected_category, selected_state, 
             main_copy_df, df_2_years_copy, category_df, segment_df, sub_cat_df, state_df, manufacturer_df, customer_df,
             regions)
 
-    category_bar_graph = create_main_graph(category_df, x='category', y=value, title='Category', value=value)
+    category_bar_graph = create_main_graph(category_df, x_axis='category', y_axis=value, title='Category', value=value)
     if selected_category is not None and category_filtered:
         graph_highlight(category_bar_graph, selected_category)
 
-    segment_bar_graph = create_main_graph(segment_df, x='segment', y=value, title='Segment', value=value)
+    segment_bar_graph = create_main_graph(segment_df, x_axis='segment', y_axis=value, title='Segment', value=value)
     if selected_segment is not None and segment_filtered:
         graph_highlight(segment_bar_graph, selected_segment)
 
-    sub_category_bar_graph = create_main_graph(sub_cat_df, x='sub_category', y=value, title='Sub-Category', value=value)
+    sub_category_bar_graph = create_main_graph(sub_cat_df, x_axis='sub_category', y_axis=value, title='Sub-Category', value=value)
     if selected_sub_category is not None and sub_category_filtered:
         graph_highlight(sub_category_bar_graph, selected_sub_category)
 
@@ -284,8 +284,8 @@ def update_graphs(value, ship_mode, regions, selected_category, selected_state, 
     if selected_state is not None and state_filtered:
         graph_highlight(state_map, selected_state)
 
-    manufacturer_bar_graph = create_main_top10_graph(manufacturer_df, x=value, y='manufacturer', title='Manufacturer', value=value)
-    customer_bar_graph = create_main_top10_graph(customer_df, x=value, y='customer_name', title='Customer', value=value)
+    manufacturer_bar_graph = create_main_top10_graph(manufacturer_df, x_axis=value, y_axis='manufacturer', title='Manufacturer', value=value)
+    customer_bar_graph = create_main_top10_graph(customer_df, x_axis=value, y_axis='customer_name', title='Customer', value=value)
 
     app_state['last_category'] = last_category
     app_state['last_segment'] = last_segment

@@ -25,8 +25,8 @@ server.config.update(SECRET_KEY='5791628bb0b13ce0c676dfde280ba245')
 db = SQLAlchemy(server)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+# 'sqlite:///test.db'
 
-#'sqlite:///test.db'
 ## Creating the USER Model and the Database
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
