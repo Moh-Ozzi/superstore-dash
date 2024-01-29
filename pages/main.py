@@ -17,6 +17,7 @@ dash.register_page(__name__, title='summary', path='/summary')
 require_login(__name__)
 
 
+
 main_df = create_main_df()
 df_2_years = main_df.copy()
 main_df = main_df[main_df['order_year'] == 2017]

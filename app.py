@@ -114,7 +114,6 @@ app.config["suppress_callback_exceptions"] = True
 server = app.server
 
 home_page = dbc.NavLink(html.Div("Home", className="fw-bolder fs-5 text"), href="/", active="exact")
-regions_page = dbc.NavLink(html.Div("Regions", className="fw-bolder fs-5 text"), href="/regions", active="exact")
 main_page = dbc.NavLink(html.Div("Summary", className="fw-bolder fs-5 text"), href="/summary", active="exact")
 table_page = dbc.NavLink(html.Div("Table", className="fw-bolder fs-5 text"), href="/table", active="exact")
 time_page = dbc.NavLink(html.Div("Time", className="fw-bolder fs-5 text"), href="/time", active="exact")
@@ -131,7 +130,7 @@ className="fw-bolder fs-5 text"
  active="exact"
 )
 toggle_button = dbc.Button(
-    id="navbar-toggle",
+    id="navbar-toggle", style={"height": "1px"}
 )
 
 
@@ -186,7 +185,7 @@ style={'width':'200px','height':'250px'}
 
 sidebar = dbc.Nav(
             [
-toggle_button,
+                toggle_button,
                 html.Br(),
                 html.Br(),
                 html.Div(home_page),
@@ -194,7 +193,6 @@ toggle_button,
                 html.Div(id="table-page"),
                 html.Div(id="register-page"),
                 html.Div(id="login-page"),
-                html.Div(id="summary-page"),
                 html.Div(id="sales-profit-scatter"),
                 html.Div(id="time-page"),
                 html.Div(id="menu", className="text-danger"),
@@ -236,7 +234,6 @@ app.layout = dbc.Container([
 @app.callback(
      Output("register-page", "children"),
      Output("login-page", "children"),
-     Output("summary-page", "children"),
      Output("main-page", "children"),
      Output("time-page", "children"),
      Output("sales-profit-scatter", "children"),
@@ -252,31 +249,31 @@ def update_authentication_status(path, n):
     ### logout redirect
     if n:
         if not n[0]:
-            return '', '', '', '', '', '', '', dash.no_update, '', ''
+            return '', '', '', '', '', '', dash.no_update, '', ''
         else:
-            return '', '', '', '', '', '', '', '/', '', ''
+            return '', '', '', '', '', '', '/', '', ''
 
     ### test if user is logged in
     if current_user.is_authenticated:
         if path == '/login':
-            return '', '', regions_page, main_page, time_page, sales_profit_scatter, menue, '/', popovers, table_page
+            return '', '',  main_page, time_page, sales_profit_scatter, menue, '/', popovers, table_page
         # print("username first : " + current_user.username)
-        return '', '', regions_page, main_page, time_page, sales_profit_scatter, menue,  dash.no_update, popovers, table_page
+        return '', '', main_page, time_page, sales_profit_scatter, menue,  dash.no_update, popovers, table_page
     else:
         ### if page is restricted, redirect to login and save path
         if path in restricted_page:
             session['url'] = path
-            return register_page, login_page, '', '', '', '', '', '/login', '', ''
+            return register_page, login_page, '', '', '', '', '/login', '', ''
 
     ### if path not login and logout display login link
     if current_user and path not in ['/register', '/login', '/logout']:
-        return register_page, login_page, '', '', '', '', '', dash.no_update, '', ''
+        return register_page, login_page, '', '', '', '', dash.no_update, '', ''
     elif path == '/register':
-        return register_page, login_page, '', '', '', '', '', dash.no_update, '', ''
+        return register_page, login_page, '', '', '', '', dash.no_update, '', ''
 
     ### if path login and logout hide links
     if path in ['/login', '/logout', '/register']:
-        return register_page, login_page, '', '', '', '', '', dash.no_update, '', ''
+        return register_page, login_page, '', '', '', '', dash.no_update, '', ''
 
 @app.callback(
     Output("username", "children"),

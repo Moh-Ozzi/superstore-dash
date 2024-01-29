@@ -7,6 +7,7 @@ from utils.login_handler import require_login
 from pages.funcs import create_main_df
 import plotly.express as px
 import pandas as pd
+from datetime import datetime
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Border, Side
 import os
@@ -20,10 +21,15 @@ dash.register_page(__name__, title='table', path='/table')
 require_login(__name__)
 
 
-df = create_main_df()
-df = df[['order_id', 'order_date', 'product_name', 'customer_name', 'ship_mode', 'state', 'category', 'quantity', 'sales', 'profit']]
-df['sales'] = df['sales'].round(2)
-df['profit'] = df['profit'].round(2)
+
+main_df = create_main_df()
+print(main_df.info())
+
+
+main_df = main_df[['order_id', 'order_date', 'product_name', 'customer_name', 'ship_mode', 'state', 'category', 'quantity', 'sales', 'profit']]
+main_df['sales'] = main_df['sales'].round(2)
+main_df['profit'] = main_df['profit'].round(2)
+main_df['order_date'] = main_df['order_date'].dt.date
 
 
 cellStyle = {
@@ -56,13 +62,13 @@ columns_def = [
 
 table = dag.AgGrid(id='table',
                    columnDefs=columns_def,
-                   rowData=df.to_dict('records'),
+                   rowData=main_df.to_dict('records'),
                    defaultColDef={"resizable": True, "sortable": True, 'editable': True, "filter": True},
                    columnSize="sizeToFit",
                    enableEnterpriseModules=True,
                    dashGridOptions={"pagination": True, "paginationPageSize": 20},
                    className="ag-theme-alpine",
-style={"height": 600, "width": '100%'}
+                   style={"height": 600, "width": '100%'}
 
                    )
 #
