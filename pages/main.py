@@ -81,7 +81,7 @@ date_range = html.Div(
         dmc.DateRangePicker(
             id="date-range-picker",
             minDate=date(2020, 8, 5),
-            value=[date(2022, 1, 1), date(2022, 12, 31)],
+            value=[date(2017, 1, 1), date(2017, 12, 31)],
             icon=DashIconify(icon="fontisto:date"),
             clearable=False,
             disabled=True,

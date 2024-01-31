@@ -34,6 +34,12 @@ def human_format(num):
     return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
 
+
+
+
+
+
+
 ## CREATE THE MAIN DATAFRAME
 def create_main_df():
     # server = socket.gethostname()
@@ -41,6 +47,11 @@ def create_main_df():
     # engine = create_engine('mssql+pyodbc://' + server + '/' + database + '?driver=SQL+Server')
     # query = 'SELECT * FROM orders where year(Order_Date) in (2016, 2017)'
     # main_df = pd.read_sql(query, engine)
+
+
+
+
+
 
     main_df = pd.read_csv('data/cleaned_superstore.csv', engine='pyarrow', dtype_backend='pyarrow')
     # main_df.columns = ['row_id', 'order_id', 'order_date', 'ship_date', 'ship_mode', 'customer_id', 'customer_name',
@@ -50,7 +61,7 @@ def create_main_df():
     #                    'sales', 'quantity', 'discount', 'profit']
 
     # main_df[['ship_mode', 'segment', 'category', 'sub_category', 'region', 'country']] = main_df[['ship_mode', 'segment', 'category', 'sub_category', 'region', 'country']].astype('category')
-
+    #
     # main_df['manufacturer'] = main_df['product_name'].str.partition(' ')[0]
     main_df['order_date'] = pd.to_datetime(main_df.order_date)
     # main_df['ship_date'] = pd.to_datetime(main_df.ship_date)
@@ -113,7 +124,7 @@ def compute_difference(df, measure, func):
 def create_graph_card(id, className='p-2'):
     height = "100%"
     card = dbc.Card(
-    [dcc.Graph(id=id, style={'height': height})],
+    [dcc.Graph(id=id, style={'height': height}, config={'displayModeBar': False})],
     style={'height': height},
     className=className
 )

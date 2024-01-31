@@ -25,6 +25,8 @@ server.config.update(SECRET_KEY='5791628bb0b13ce0c676dfde280ba245')
 db = SQLAlchemy(server)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+global_username = ''
+
 # 'sqlite:///test.db'
 
 ## Creating the USER Model and the Database
@@ -64,6 +66,7 @@ def register_route():
 
 @server.route('/login', methods=['POST'])
 def login():
+    global global_username
     if request.form:
         username = request.form['username']
         password = request.form['password']
@@ -71,7 +74,8 @@ def login():
         if user is None or user.password != password:
             return """invalid username and/or password <a href='/login'>login here</a>"""
         # if (datetime.utcnow() > user.registration_date + timedelta(minutes=1)) and (user.trial == True) and (user.OTP == None):
-        #     return redirect('/buying')
+        #     global_username = username
+        #     return redirect('/trial')
         login_user(user)
         if 'url' in session:
             if session['url']:
@@ -288,7 +292,7 @@ def current_username(url):
     Output("the_alert", "children"),
     Input("url", "pathname"))
 def toggle_modal(path):
-    alert_message = dbc.Alert("User registered successfully", color="primary",
+    alert_message = dbc.Alert("User registered successfully", color="#2596be",
                               dismissable=True, className="text-center fw-bold")
     global count_message
     if path == '/login' and alert == True and count_message == 0:
@@ -296,41 +300,7 @@ def toggle_modal(path):
         return alert_message
     return dash.no_update
 
-
-@app.callback(
-    Output("buying_message", "children"),
-    Input("buy_button", "n_clicks"),
-    Input('otp-input', 'value')
-    )
-def update_user(n, value):
-    global alert
-    with server.app_context():
-        user = User.query.filter_by(id=1).first()
-        if n == 1 and user.OTP == None:
-            otp = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-            # hashed_otp = hashlib.sha256(otp.encode()).hexdigest()
-            user.OTP = otp
-            user.trial = False
-            db.session.commit()
-            sendemail(otp)
-            return 'شكرا. سيتم التواصل معك وتزوريدك بكلمة مرور يرجى إدخالها بالأسفل.'
-        if user.OTP is not None:
-            if value == user.OTP:
-                alert=False
-                return "تم تفعيل الحساب. يمكنك تسجيل الدخول الان."
-
-def sendemail(OTP):
-    EMAIL_ADDRESS = 'mohamedelauzei@gmail.com'
-    EMAIL_PASSWORD = 'snbvyvvmiqxhvuty'
-    msg = EmailMessage()
-    msg['Subject'] = 'New user'
-    msg['From'] = EMAIL_ADDRESS
-    msg['To'] = 'mohamedelauzei@gmail.com'
-    msg.set_content('The OTP IS {}'.format(OTP))
-
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        smtp.send_message(msg)
+#
 
 if __name__ == "__main__":
     app.run_server(debug=True)

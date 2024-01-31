@@ -23,7 +23,6 @@ require_login(__name__)
 
 
 main_df = create_main_df()
-print(main_df.info())
 
 
 main_df = main_df[['order_id', 'order_date', 'product_name', 'customer_name', 'ship_mode', 'state', 'category', 'quantity', 'sales', 'profit']]
