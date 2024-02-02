@@ -61,10 +61,10 @@ def create_main_df():
     #                    'sales', 'quantity', 'discount', 'profit']
 
     # main_df[['ship_mode', 'segment', 'category', 'sub_category', 'region', 'country']] = main_df[['ship_mode', 'segment', 'category', 'sub_category', 'region', 'country']].astype('category')
-    #
+
     # main_df['manufacturer'] = main_df['product_name'].str.partition(' ')[0]
     main_df['order_date'] = pd.to_datetime(main_df.order_date)
-    # main_df['ship_date'] = pd.to_datetime(main_df.ship_date)
+    main_df['ship_date'] = pd.to_datetime(main_df.ship_date)
     # main_df['order_year'] = main_df.order_date.dt.year
     # main_df['order_day'] = main_df.order_date.dt.day_name()
     # month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July',

@@ -300,7 +300,7 @@ def toggle_modal(path):
         return alert_message
     return dash.no_update
 
-#
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
