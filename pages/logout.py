@@ -11,6 +11,6 @@ def layout():
     return html.Div(
         [
             html.Div(html.H2("You have been logged out - See you later!")),
-            dcc.Interval(id={'index':'redirectLogin', 'type':'redirect'}, n_intervals=0, interval=1*3000)
+            dcc.Interval(id={'index':'redirectLogin', 'type':'redirect'}, n_intervals=0, interval=1*1500)
         ]
     )

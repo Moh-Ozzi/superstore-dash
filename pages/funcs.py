@@ -33,13 +33,6 @@ def human_format(num):
         num /= 1000.0
     return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
-
-
-
-
-
-
-
 ## CREATE THE MAIN DATAFRAME
 def create_main_df():
     # server = socket.gethostname()
@@ -49,10 +42,6 @@ def create_main_df():
     # main_df = pd.read_sql(query, engine)
 
 
-
-
-
-
     main_df = pd.read_csv('data/cleaned_superstore.csv', engine='pyarrow', dtype_backend='pyarrow')
     # main_df.columns = ['row_id', 'order_id', 'order_date', 'ship_date', 'ship_mode', 'customer_id', 'customer_name',
     #                    'segment',
@@ -60,7 +49,6 @@ def create_main_df():
     #                    'product_name',
     #                    'sales', 'quantity', 'discount', 'profit']
 
-    # main_df[['ship_mode', 'segment', 'category', 'sub_category', 'region', 'country']] = main_df[['ship_mode', 'segment', 'category', 'sub_category', 'region', 'country']].astype('category')
 
     # main_df['manufacturer'] = main_df['product_name'].str.partition(' ')[0]
     main_df['order_date'] = pd.to_datetime(main_df.order_date)
@@ -198,29 +186,6 @@ def create_map_graph(df, value):
 
     return fig
 
-
-#
-# def create_map_graph(df, value):
-#     if value == 'orders':
-#         grouped_by_state = df.groupby(['state', 'state_code'], as_index=False)[value].nunique()
-#     else:
-#         grouped_by_state = df.groupby(['state', 'state_code'], as_index=False)[value].sum()
-#     fig = px.choropleth(
-#         data_frame=grouped_by_state,
-#         locationmode='USA-states',
-#         locations='state_code',
-#         color=value,
-#         scope='usa',
-#         hover_data=['state', value],
-#         color_continuous_scale=px.colors.sequential.Blues,
-#         range_color=[grouped_by_state[value].min(), grouped_by_state[value].max()],
-#         title=f'<b>{value.capitalize()}</b> by State',
-#         labels={'Sales': 'Sales'},
-#     ).update_layout(margin=dict(l=0, r=0, t=30, b=0), coloraxis_showscale=False, clickmode="event+select",
-#                     uirevision='dataset', title=dict(font=dict(family='Arial', size=14), x=0.5), hoverlabel=dict(
-#         bgcolor="#2471a1"))
-#
-#     return fig
 
 def graph_highlight(graph, selected_mark):
     if 'bar' in graph.data[0].type:

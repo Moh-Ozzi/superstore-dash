@@ -96,7 +96,7 @@ layout = dbc.Container(
         dcc.Store(id='store', data={'last_category': None, 'last_segment': None, 'last_subcategory': None,
                                     'last_state': None, 'category_filtered': False, 'segment_filtered': False,
                                     'sub_category_filtered': False, 'state_filtered': False, 'inputs': []}),
-        dbc.Row([dbc.Col(html.H5(id='username'), width=3), dbc.Col(date_range, width={'offset': 1}), dbc.Col(choices, width={'offset': 2})]),
+        dbc.Row([dbc.Col(html.H5(id='username', className='fw-bold'), width=3), dbc.Col(date_range, width={'offset': 1}), dbc.Col(choices, width={'offset': 2})]),
         dbc.Row([dbc.Col(card_sales), dbc.Col(card_profit), dbc.Col(card_orders), dbc.Col(card_customers)]),
         dbc.Row([dbc.Col(by_state, width=4, style={'height': height}),
                  dbc.Col(by_segment, width=4, style={'height': height}),

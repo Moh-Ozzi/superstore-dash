@@ -133,7 +133,7 @@ def export_data(clicks, vdata):
         # profit_sum = sum(cell.value for cell in sheet["J"][1:])
 
         # Add a row for the total
-        total_row = [None, None, None, None, None, None, f"=SUBTOTAL(109, G2:G{sheet.max_row})", f"=SUBTOTAL(109, H2:H{sheet.max_row})", f"=SUBTOTAL(109, I2:I{sheet.max_row})"]
+        total_row = ['Total', None, None, None, None, None, f"=SUBTOTAL(109, G2:G{sheet.max_row})", f"=SUBTOTAL(109, H2:H{sheet.max_row})", f"=SUBTOTAL(109, I2:I{sheet.max_row})"]
         sheet.append(total_row)
 
         # Apply formatting to the total row

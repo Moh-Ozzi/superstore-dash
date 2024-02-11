@@ -25,9 +25,9 @@ server.config.update(SECRET_KEY='5791628bb0b13ce0c676dfde280ba245')
 db = SQLAlchemy(server)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-global_username = ''
-
 # 'sqlite:///test.db'
+
+global_username = ''
 
 ## Creating the USER Model and the Database
 class User(db.Model, UserMixin):
@@ -126,13 +126,14 @@ register_page = dbc.NavLink(html.Div("Register", className="fw-bolder fs-5 text"
 login_page = dbc.NavLink(html.Div("Login", className="fw-bolder fs-5 text"), href="/login", active="exact")
 logout_page = dbc.NavLink(html.Div("Logout"), href="/logout", active="exact")
 menue = dbc.NavLink(dbc.DropdownMenu(children=
-            [dbc.DropdownMenuItem("Settings", id='placeholder'), dbc.DropdownMenuItem("Logout", href='/logout')],
+            [dbc.DropdownMenuItem("Settings", id='placeholder', className="fw-bolder"), dbc.DropdownMenuItem("Logout", href='/logout', className="fw-bold")],
             label="Profile",
             nav=True,
-className="fw-bolder fs-5 text"
-        ),
- active="exact"
-)
+            className="fw-bolder fs-5 text"
+                    ),
+             active="exact"
+            )
+
 toggle_button = dbc.Button(
     id="navbar-toggle", style={"height": "1px"}
 )
@@ -250,6 +251,7 @@ app.layout = dbc.Container([
     prevent_initial_call=True
 )
 def update_authentication_status(path, n):
+    global popovers
     ### logout redirect
     if n:
         if not n[0]:
@@ -261,8 +263,11 @@ def update_authentication_status(path, n):
     if current_user.is_authenticated:
         if path == '/login':
             return '', '',  main_page, time_page, sales_profit_scatter, menue, '/', popovers, table_page
-        # print("username first : " + current_user.username)
-        return '', '', main_page, time_page, sales_profit_scatter, menue,  dash.no_update, popovers, table_page
+
+        if path == '/summary':
+            return '', '', main_page, time_page, sales_profit_scatter, menue, dash.no_update, popovers, table_page
+
+        return '', '', main_page, time_page, sales_profit_scatter, menue,  dash.no_update, '', table_page
     else:
         ### if page is restricted, redirect to login and save path
         if path in restricted_page:
@@ -300,7 +305,41 @@ def toggle_modal(path):
         return alert_message
     return dash.no_update
 
+@app.callback(
+    Output("buying_message", "children"),
+    Input("buy_button", "n_clicks"),
+    Input('otp-input', 'value')
+    )
+def update_user(n, value):
+    global alert
+    with server.app_context():
+        user = User.query.filter_by(username=global_username).first()
+        if n == 1 and user.OTP == None:
+            otp = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+            # hashed_otp = hashlib.sha256(otp.encode()).hexdigest()
+            user.OTP = otp
+            user.trial = False
+            db.session.commit()
+            sendemail(otp)
+            return 'شكرا. سيتم التواصل معك وتزوريدك بكلمة مرور يرجى إدخالها بالأسفل.'
+        if user.OTP is not None:
+            if value == user.OTP:
+                alert=False
+                return "تم تفعيل الحساب. يمكنك تسجيل الدخول الان."
+
+def sendemail(OTP):
+    EMAIL_ADDRESS = 'mohamedelauzei@gmail.com'
+    EMAIL_PASSWORD = 'rrfm ugmh reca gljy'
+    msg = EmailMessage()
+    msg['Subject'] = 'New user'
+    msg['From'] = EMAIL_ADDRESS
+    msg['To'] = 'mohamedelauzei@gmail.com'
+    msg.set_content('The OTP for new user {} IS {}'.format(global_username, OTP))
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        smtp.send_message(msg)
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server()

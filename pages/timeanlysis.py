@@ -37,8 +37,9 @@ count_matrix = pd.crosstab(index=main_df['hour'], columns=main_df['order_day'], 
 count_matrix = count_matrix.div(count_matrix.sum().sum()).multiply(100).round(2)
 fig = px.imshow(count_matrix, color_continuous_scale=px.colors.sequential.Blues, text_auto=True, labels=dict(x="Day",
                                     y="Hour",
-                                    color="No of Orders"))
-fig.update(layout_coloraxis_showscale=False).update_layout(hoverlabel=dict(
+                                    color="% of Orders"))
+fig.update_layout(coloraxis_showscale=False,
+    hoverlabel=dict(
         bgcolor="#2471a1",
     ))
 
@@ -71,9 +72,6 @@ fig2.update_layout(
     xaxis_title='Month',
     yaxis_title='Orders',
     yaxis=dict(showgrid=False),
-    hoverlabel=dict(
-        bgcolor="#2471a1",
-    )
 )
 
 fig2.layout.height = 600
