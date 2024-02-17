@@ -176,12 +176,13 @@ def create_map_graph(df, value):
         scope='usa',
         # custom_data=value,
         hover_name='state',
-        color_continuous_scale=px.colors.sequential.Blues,
+        color_continuous_scale=px.colors.sequential.Reds,
         range_color=[grouped_by_state[value].min(), grouped_by_state[value].max()],
         title=f'<b>{value_title.capitalize()}</b> by State',
         # labels={value: value},
     ).update_layout(margin=dict(l=0, r=0, t=30, b=0), coloraxis_showscale=True, coloraxis_colorbar_x=0.9,
-                    title=dict(font=dict(family='Arial', size=14), x=0.5), hoverlabel=dict(bgcolor="#2471a1"))\
+                    title=dict(font=dict(family='Arial', size=14), x=0.5), hoverlabel=dict(bgcolor="#b60900"),
+                    coloraxis_colorbar=dict(title=value_title))\
         .update_traces(marker_line_color='lightgrey', hovertemplate=f'<b>%{{hovertext}}</b><br><br>{value_title}: %{{z:,.0f}}')
 
     return fig

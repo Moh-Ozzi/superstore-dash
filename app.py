@@ -20,12 +20,13 @@ from pages.funcs import create_main_df
 ## SERVER CONFIGURATION AND INITIALISATION
 
 server = Flask(__name__)
-server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://superstore_jibm_user:6a4sKfN1RmZwRMr06jCxKABco67BmHhq@dpg-cmajt30l5elc73el1qi0-a.frankfurt-postgres.render.com/superstore_jibm'
+server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 server.config.update(SECRET_KEY='5791628bb0b13ce0c676dfde280ba245')
 db = SQLAlchemy(server)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-# 'sqlite:///test.db'
+# 'postgresql://superstore_jibm_user:6a4sKfN1RmZwRMr06jCxKABco67BmHhq@dpg-cmajt30l5elc73el1qi0-a.frankfurt-postgres.render.com/superstore_jibm'
+#
 
 global_username = ''
 
@@ -73,9 +74,9 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user is None or user.password != password:
             return """invalid username and/or password <a href='/login'>login here</a>"""
-        # if (datetime.utcnow() > user.registration_date + timedelta(minutes=1)) and (user.trial == True) and (user.OTP == None):
-        #     global_username = username
-        #     return redirect('/trial')
+        if (datetime.utcnow() > user.registration_date + timedelta(minutes=1)) and (user.trial == True) and (user.OTP == None):
+            global_username = username
+            return redirect('/trial')
         login_user(user)
         if 'url' in session:
             if session['url']:
@@ -106,12 +107,12 @@ def load_user(username):
     u = User.query.get(username)
     return u
 
-load_figure_template("yeti")
+load_figure_template("simplex")
 
 # The DASH APP
 app = dash.Dash(
     __name__, server=server, use_pages=True, suppress_callback_exceptions=True,
-    external_stylesheets=[dbc.themes.YETI, dbc.icons.BOOTSTRAP]
+    external_stylesheets=[dbc.themes.SIMPLEX, dbc.icons.BOOTSTRAP]
 )
 app.config["suppress_callback_exceptions"] = True
 

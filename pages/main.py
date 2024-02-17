@@ -67,7 +67,7 @@ choices = html.Div(
             data=[{"value": "sales", "label": "Sales"},
                   {"value": "profit", "label": "Profit"},
                   {"value": "order_id", "label": "Orders"}],
-            color='blue.9',
+            color='red.8',
             fullWidth=True,
             className='fw-bold me-4 shadow-sm',
             # style={'color':'black'}
