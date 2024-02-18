@@ -35,12 +35,12 @@ main_df['hour'] = random_numbers
 # MATRIX GRAPH & DATAFRAME
 count_matrix = pd.crosstab(index=main_df['hour'], columns=main_df['order_day'], normalize=True)
 count_matrix = count_matrix.div(count_matrix.sum().sum()).multiply(100).round(2)
-fig = px.imshow(count_matrix, color_continuous_scale=px.colors.sequential.Blues, text_auto=True, labels=dict(x="Day",
+fig = px.imshow(count_matrix, color_continuous_scale=px.colors.sequential.Sunset, text_auto=True, labels=dict(x="Day",
                                     y="Hour",
                                     color="% of Orders"))
-fig.update_layout(coloraxis_showscale=False,
+fig.update_layout(
     hoverlabel=dict(
-        bgcolor="#60a4ea",
+        bgcolor="#f5813d",
     ))
 
 fig.layout.height = 600

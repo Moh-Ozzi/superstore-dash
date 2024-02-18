@@ -106,12 +106,12 @@ def load_user(username):
     u = User.query.get(username)
     return u
 
-load_figure_template("cerulean")
+load_figure_template("united")
 
 # The DASH APP
 app = dash.Dash(
     __name__, server=server, use_pages=True, suppress_callback_exceptions=True,
-    external_stylesheets=[dbc.themes.CERULEAN, dbc.icons.BOOTSTRAP]
+    external_stylesheets=[dbc.themes.UNITED, dbc.icons.BOOTSTRAP]
 )
 app.config["suppress_callback_exceptions"] = True
 
@@ -135,7 +135,7 @@ menue = dbc.NavLink(dbc.DropdownMenu(children=
             )
 
 toggle_button = dbc.Button(
-    id="navbar-toggle", style={"height": "1px"}
+    id="navbar-toggle", style={"height": "1px", 'background-color': '#5F3DC4', "border-color": "#5F3DC4"}
 )
 
 
@@ -171,11 +171,11 @@ popovers = html.Div(
                 value=ship_modes,
                 labelStyle={"display": "inline-block", "paddingLeft": "0px", "fontSize": "0.8rem"}, # change the size of the label font
                 inputStyle={"transform": "scale(0.8)"}, # change the size of the box
-                label_checked_style={"color": "#2471a1"},
-                input_checked_style={
-                    "backgroundColor": "#2471a1",
-                    "borderColor": "#2471a1",
-                },
+                # label_checked_style={"color": "#2471a1"},
+                # input_checked_style={
+                #     "backgroundColor": "#2471a1",
+                #     "borderColor": "#2471a1",
+                # },
                 className='mb-1'
             )
                              ],
@@ -211,8 +211,8 @@ sidebar = dbc.Nav(
             navbar=True,
             vertical=True,
             pills=True,
-            className="bg-light border border-2 shadow",
-style={'height': '100vh'},
+            className="border border-2 shadow",
+style={'height': '100vh', 'background-color': '#5F3DC4'},
     )
 
 collapse = dbc.Collapse(sidebar, id="navbar-collapse", is_open=True)
@@ -233,7 +233,7 @@ app.layout = dbc.Container([
         ],
             className='my-2', style={'height': '100%'}
     )
-], fluid=True, style={'background-color': '#F8F9F9'})
+], fluid=True, style={'background-color': '#F3F0FF'})
 
 
 @app.callback(
@@ -297,7 +297,7 @@ def current_username(url):
     Output("the_alert", "children"),
     Input("url", "pathname"))
 def toggle_modal(path):
-    alert_message = dbc.Alert("User registered successfully", color="#60a4ea",
+    alert_message = dbc.Alert("User registered successfully", color="#f5813d",
                               dismissable=True, className="text-center fw-bold")
     global count_message
     if path == '/login' and alert == True and count_message == 0:
