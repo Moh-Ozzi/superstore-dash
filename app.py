@@ -26,7 +26,6 @@ db = SQLAlchemy(server)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # 'sqlite:///test.db'
-#
 
 global_username = ''
 
@@ -74,9 +73,9 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user is None or user.password != password:
             return """invalid username and/or password <a href='/login'>login here</a>"""
-        # if (datetime.utcnow() > user.registration_date + timedelta(minutes=1)) and (user.trial == True) and (user.OTP == None):
-        #     global_username = username
-        #     return redirect('/trial')
+        if (datetime.utcnow() > user.registration_date + timedelta(minutes=1)) and (user.trial == True) and (user.OTP == None):
+            global_username = username
+            return redirect('/trial')
         login_user(user)
         if 'url' in session:
             if session['url']:
@@ -107,12 +106,12 @@ def load_user(username):
     u = User.query.get(username)
     return u
 
-load_figure_template("simplex")
+load_figure_template("cerulean")
 
 # The DASH APP
 app = dash.Dash(
     __name__, server=server, use_pages=True, suppress_callback_exceptions=True,
-    external_stylesheets=[dbc.themes.SIMPLEX, dbc.icons.BOOTSTRAP]
+    external_stylesheets=[dbc.themes.CERULEAN, dbc.icons.BOOTSTRAP]
 )
 app.config["suppress_callback_exceptions"] = True
 
@@ -298,7 +297,7 @@ def current_username(url):
     Output("the_alert", "children"),
     Input("url", "pathname"))
 def toggle_modal(path):
-    alert_message = dbc.Alert("User registered successfully", color="#2596be",
+    alert_message = dbc.Alert("User registered successfully", color="#60a4ea",
                               dismissable=True, className="text-center fw-bold")
     global count_message
     if path == '/login' and alert == True and count_message == 0:
