@@ -1,10 +1,7 @@
 from dash import Dash, html, dcc
 import dash_bootstrap_components as dbc
-from sqlalchemy import create_engine
 import plotly.express as px
 import pandas as pd
-import random
-import socket
 
 
 code = {'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR',
@@ -20,8 +17,6 @@ code = {'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR',
         'South Carolina': 'SC', 'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX',
         'Utah': 'UT', 'Vermont': 'VT', 'Virginia': 'VA', 'Washington': 'WA',
         'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'}
-
-
 
 
 # FORMAT THE NUMBERS IN CARDS
