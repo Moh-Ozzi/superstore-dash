@@ -73,9 +73,9 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user is None or user.password != password:
             return """invalid username and/or password <a href='/login'>login here</a>"""
-        if (datetime.utcnow() > user.registration_date + timedelta(minutes=1)) and (user.trial == True) and (user.OTP == None):
-            global_username = username
-            return redirect('/trial')
+        # if (datetime.utcnow() > user.registration_date + timedelta(minutes=1)) and (user.trial == True) and (user.OTP == None):
+        #     global_username = username
+        #     return redirect('/trial')
         login_user(user)
         if 'url' in session:
             if session['url']:
