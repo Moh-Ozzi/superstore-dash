@@ -15,13 +15,13 @@ from email.message import EmailMessage
 import dash_mantine_components as dmc
 import numpy as np
 from pages.funcs import create_main_df
-
+import os
 
 ## SERVER CONFIGURATION AND INITIALISATION
 
 server = Flask(__name__)
-server.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://superstore_jibm_user:6a4sKfN1RmZwRMr06jCxKABco67BmHhq@dpg-cmajt30l5elc73el1qi0-a.frankfurt-postgres.render.com/superstore_jibm'
-server.config.update(SECRET_KEY='5791628bb0b13ce0c676dfde280ba245')
+server.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
+server.config.update(SECRET_KEY=os.environ.get('SECRET_KEY'))
 db = SQLAlchemy(server)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -73,9 +73,9 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user is None or user.password != password:
             return """invalid username and/or password <a href='/login'>login here</a>"""
-        if (datetime.utcnow() > user.registration_date + timedelta(minutes=1)) and (user.trial == True) and (user.OTP == None):
-            global_username = username
-            return redirect('/trial')
+        # if (datetime.utcnow() > user.registration_date + timedelta(minutes=1)) and (user.trial == True) and (user.OTP == None):
+        #     global_username = username
+        #     return redirect('/trial')
         login_user(user)
         if 'url' in session:
             if session['url']:
