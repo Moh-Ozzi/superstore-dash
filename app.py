@@ -21,8 +21,10 @@ import os
 ## SERVER CONFIGURATION AND INITIALISATION
 
 server = Flask(__name__)
-server.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
-server.config.update(SECRET_KEY=os.environ.get('SECRET_KEY'))
+server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+server.config.update(SECRET_KEY='5791628bb0b13ce0c676dfde280ba245')
+# server.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
+# server.config.update(SECRET_KEY=os.environ.get('SECRET_KEY'))
 db = SQLAlchemy(server)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
