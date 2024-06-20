@@ -1,4 +1,3 @@
-
 from flask import Flask, request, redirect, session, url_for, flash, render_template
 from flask_login import login_user, LoginManager, UserMixin, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
@@ -8,10 +7,6 @@ from utils.login_handler import restricted_page
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 from datetime import datetime, timedelta
-import random
-import string
-import smtplib
-from email.message import EmailMessage
 import dash_mantine_components as dmc
 import numpy as np
 from pages.funcs import create_main_df
@@ -21,12 +16,11 @@ import os
 ## SERVER CONFIGURATION AND INITIALISATION
 
 server = Flask(__name__)
-server.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-server.config.update(SECRET_KEY='5791628bb0b13ce0c676dfde280ba245')
-# server.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
-# server.config.update(SECRET_KEY=os.environ.get('SECRET_KEY'))
+server.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
+server.config.update(SECRET_KEY=os.environ.get('SECRET_KEY'))
 db = SQLAlchemy(server)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 
 
 global_username = ''
@@ -307,41 +301,6 @@ def toggle_modal(path):
         return alert_message
     return dash.no_update
 
-# @app.callback(
-#     Output("buying_message", "children"),
-#     Input("buy_button", "n_clicks"),
-#     Input('otp-input', 'value')
-#     )
-# def update_user(n, value):
-#     global alert
-#     with server.app_context():
-#         user = User.query.filter_by(username=global_username).first()
-#         if n == 1 and user.OTP == None:
-#             otp = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-#             # hashed_otp = hashlib.sha256(otp.encode()).hexdigest()
-#             user.OTP = otp
-#             user.trial = False
-#             db.session.commit()
-#             sendemail(otp)
-#             return 'شكرا. سيتم التواصل معك وتزوريدك بكلمة مرور يرجى إدخالها بالأسفل.'
-#         if user.OTP is not None:
-#             if value == user.OTP:
-#                 alert=False
-#                 return "تم تفعيل الحساب. يمكنك تسجيل الدخول الان."
-#
-# def sendemail(OTP):
-#     EMAIL_ADDRESS = 'mohamedelauzei@gmail.com'
-#     EMAIL_PASSWORD = 'rrfm ugmh reca gljy'
-#     msg = EmailMessage()
-#     msg['Subject'] = 'New user'
-#     msg['From'] = EMAIL_ADDRESS
-#     msg['To'] = 'mohamedelauzei@gmail.com'
-#     msg.set_content('The OTP for new user {} IS {}'.format(global_username, OTP))
-#
-#     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-#         smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-#         smtp.send_message(msg)
-#
 
 if __name__ == "__main__":
     app.run_server()
